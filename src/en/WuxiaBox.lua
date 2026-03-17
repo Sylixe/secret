@@ -146,37 +146,76 @@ do
 	fBuild = temp.build
 end
 
+local function selectLast(elements)
+	return elements:get(elements:size() - 1)
+end
+
 -- Search listings
 local function search(filters)
 	local query = filters[QUERY]
 	local page = filters[PAGE]
-	if query == "" then
-		return {}
+	if query ~= "" then
+		local searchId = searchMap[query]
+		if searchId ~= nil then
+			return parseBrowse(expandURL("/e/search/result/index.php?page=" .. (page - 1) .. "&searchid=" .. searchId))
+		else
+			local request = POST(
+				BASE_URL .. "/e/search/index.php",
+				nil,
+				FormBodyBuilder()
+					:add("show", "title")
+					:add("tempid", "1")
+					:add("tbname", "news")
+					:add("keyboard", query)
+					:build()
+			)
+			local document = RequestDocument(request)
+
+			local pages = document:select("ul.pagination a")
+			if pages:size() > 0 then
+				searchMap[query] = selectLast(pages):attr("href"):match(".*searchid=([0-9]*).*")
+				searchId = searchMap[query]
+				return parseBrowse(
+					expandURL("/e/search/result/index.php?page=" .. (page - 1) .. "&searchid=" .. searchId)
+				)
+			else
+				return {}
+			end
+		end
 	end
 
-	local searchId = searchMap[query]
-	if not searchId then
-		local request = POST(
-			SEARCH_REQUEST_URL,
-			nil,
-			FormBodyBuilder()
-				:add("show", "title")
-				:add("tempid", "1")
-				:add("tbname", "news")
-				:add("keyboard", query)
-				:build()
-		)
-
-		local doc = RequestDocument(request)
-		local searchLink = selectFirst(doc, "ul.pagination a:nth-of-type(2)")
-		searchLink = searchLink:attr("href")
-
-		searchId = sub(searchLink, 48)
-		searchMap[query] = searchId
-	end
-
-	return parseBrowse(expandURL("/e/search/result/index.php?page=" .. (page - 1) .. "&searchid=" .. searchId))
+	return {}
 end
+-- local function search(filters)
+-- 	local query = filters[QUERY]
+-- 	local page = filters[PAGE]
+-- 	if query == "" then
+-- 		return {}
+-- 	end
+
+-- 	local searchId = searchMap[query]
+-- 	if not searchId then
+-- 		local request = POST(
+-- 			SEARCH_REQUEST_URL,
+-- 			nil,
+-- 			fBuild(
+-- 				fAdd(
+-- 					fAdd(fAdd(fAdd(FormBodyBuilder(), "show", "title"), "tempid", "1"), "tbname", "news"),
+-- 					"keyboard",
+-- 					query
+-- 				)
+-- 			)
+-- 		)
+
+-- 		local doc = RequestDocument(request)
+-- 		local searchLink = selectFirst(doc, ".pagination > a:nth-of-type(2)"):attr("href")
+
+-- 		searchId = sub(searchLink, 48)
+-- 		searchMap[query] = searchId
+-- 	end
+
+-- 	return parseBrowse(expandURL("/e/search/result/index.php?page=" .. (page - 1) .. "&searchid=" .. searchId))
+-- end
 
 -- Helper
 local function genreOrTagSelector(doc, section, finalTable)
