@@ -149,25 +149,34 @@ local function search(filters)
 		if searchId ~= nil then
 			return parseBrowse(expandURL("/e/search/result/index.php?page=" .. (page - 1) .. "&searchid=" .. searchId))
 		else
-			local request =
-				POST("https://www.wuxiabox.com/e/search/index.php?show=title&tempid=1&tbname=news&keyboard=" .. query)
+			local request = POST(
+				BASE_URL .. "/e/search/index.php",
+				nil,
+				FormBodyBuilder()
+					:add("show", "title")
+					:add("tempid", "1")
+					:add("tbname", "news")
+					:add("keyboard", query)
+					:build()
+			)
 			local document = RequestDocument(request)
-
-			local pages = document:select("ul.pagination a")
-			if pages:size() > 0 then
-				searchMap[query] = selectLast(pages):attr("href"):match(".*searchid=([0-9]*).*")
-				searchId = searchMap[query]
-				return parseBrowse(
-					expandURL("/e/search/result/index.php?page=" .. (page - 1) .. "&searchid=" .. searchId)
-				)
+			if page == 1 then
+				local pages = document:select("ul.pagination a")
+				if pages:size() > 0 then
+					searchMap[query] = selectLast(pages):attr("href"):match(".*searchid=([0-9]*).*")
+				end
+				return parseBrowse(document)
 			else
-				return {
-					Novel({
-						title = tostring(document),
-						link = "",
-						imageURL = "",
-					}),
-				}
+				local pages = document:select("ul.pagination a")
+				if pages:size() > 0 then
+					searchMap[query] = selectLast(pages):attr("href"):match(".*searchid=([0-9]*).*")
+					searchId = searchMap[query]
+					return parseBrowse(
+						expandURL("/e/search/result/index.php?page=" .. (page - 1) .. "&searchid=" .. searchId)
+					)
+				else
+					return {}
+				end
 			end
 		end
 	end
