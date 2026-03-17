@@ -270,7 +270,7 @@ local listings = {
 
 		return parseBrowse(
 			expandURL(
-				"list/" .. finalGenre .. "/" .. finalStatus .. "-" .. finalSortBy .. "-" .. currentPage .. ".html"
+				"/list/" .. finalGenre .. "/" .. finalStatus .. "-" .. finalSortBy .. "-" .. currentPage .. ".html"
 			),
 			".novel-item > a"
 		)
