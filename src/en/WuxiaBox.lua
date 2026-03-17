@@ -168,7 +168,7 @@ local function search(filters)
 		)
 
 		local doc = RequestDocument(request)
-		local searchLink = selectFirst(doc, ".pagination > a:nth-of-type(2)")
+		local searchLink = selectFirst(doc, "ul.pagination a:nth-of-type(2)")
 		searchLink = searchLink:attr("href")
 
 		searchId = sub(searchLink, 48)
