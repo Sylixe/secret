@@ -228,14 +228,9 @@ end
 -- Reader page
 local function getPassage(chapterURL)
 	local document = GETDocument(expandURL(chapterURL))
-	local chap = document:selectFirst(".chapter-content")
-	local title = document:selectFirst(".chapter-header h2"):text()
-	-- This is for the sake of consistant styling
-	chap:select("br:nth-child(even)"):remove()
-	chap = tostring(chap):gsub("<div", "<p"):gsub("</div", "</p"):gsub("<br>", "</p><p>")
-	chap = Document(chap):selectFirst("body")
-	-- Adds Chapter Title
-	chap:child(0):before("<h1>" .. title .. "</h1>")
+	local chap = selectFirst(document, ".chapter-content")
+	local title = selectFirst(document, ".chapter-header h2"):text()
+	chap:prepend("<h1>" .. title .. "</h1>")
 	return pageOfElem(chap, true)
 end
 
