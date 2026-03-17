@@ -151,7 +151,7 @@ local function search(filters)
 		else
 			local request =
 				POST("https://www.wuxiabox.com/e/search/index.php?show=title&tempid=1&tbname=news&keyboard=" .. query)
-			local document = Document(request)
+			local document = RequestDocument(request)
 
 			local pages = document:select("ul.pagination a")
 			if pages:size() > 0 then
@@ -163,7 +163,7 @@ local function search(filters)
 			else
 				return {
 					Novel({
-						title = tostring(request),
+						title = tostring(document),
 						link = "",
 						imageURL = "",
 					}),
