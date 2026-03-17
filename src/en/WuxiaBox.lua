@@ -166,7 +166,7 @@ local function search(filters)
 					searchMap[query] = selectLast(pages):attr("href"):match(".*searchid=([0-9]*).*")
 				else
 					return { Novel({
-						title = tostring(pages:size()),
+						title = tostring(document),
 						link = "",
 						imageURL = "",
 					}) }
