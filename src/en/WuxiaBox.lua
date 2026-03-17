@@ -125,10 +125,12 @@ local function parseBrowse(novelListURL, selector)
 
 		finalListArray[i + 1] = Novel({
 			title = novelInfo:attr("title"),
-			imageURL = expandURL(selectFirst(novelInfo, "img"):attr("data-src")),
+			imageURL = expandURL(selectFirst(novelInfo, ".cover-wrap > figure > img"):attr("data-src")),
 			link = novelInfo:attr("href"),
 		})
 	end
+
+	return finalListArray
 end
 
 -- Searching listings
