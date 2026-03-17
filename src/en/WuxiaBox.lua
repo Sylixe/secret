@@ -169,7 +169,7 @@ local function search(filters)
 					:add("keyboard", query)
 					:build()
 			)
-			local document = RequestDocument(request)
+			local document = Document(request)
 
 			local pages = document:select("ul.pagination a")
 			if pages:size() > 0 then
