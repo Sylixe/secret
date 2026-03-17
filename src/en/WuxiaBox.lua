@@ -179,7 +179,13 @@ local function search(filters)
 					expandURL("/e/search/result/index.php?page=" .. (page - 1) .. "&searchid=" .. searchId)
 				)
 			else
-				return {}
+				return {
+					Novel({
+						title = "Error" .. tostring(pages:size()),
+						link = "",
+						imageURL = "",
+					}),
+				}
 			end
 		end
 	end
