@@ -159,13 +159,12 @@ local function search(filters)
 		local request = POST(
 			SEARCH_REQUEST_URL,
 			nil,
-			fBuild(
-				fAdd(
-					fAdd(fAdd(fAdd(FormBodyBuilder(), "show", "title"), "tempid", "1"), "tbname", "news"),
-					"keyboard",
-					query
-				)
-			)
+			FormBodyBuilder()
+				:add("show", "title")
+				:add("tempid", "1")
+				:add("tbname", "news")
+				:add("keyboard", query)
+				:build()
 		)
 
 		local doc = RequestDocument(request)
