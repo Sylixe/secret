@@ -158,7 +158,7 @@ local function extractChapters(doc, array, count)
 		count = count + 1
 		local chapter = list:get(j)
 		array[count] = NovelChapter({
-			order = count,
+			order = count - 1,
 			title = chapter:selectFirst(".chapter-title"):text(),
 			link = chapter:attr("href"),
 		})
@@ -197,7 +197,7 @@ local function parseNovel(novelURL, loadChapters)
 			local chapterArray = {}
 			local chapterCount = 0
 
-			local listingDoc = GETDocument(CHAPTER_LISTINGS_URL .. "0" .. sub(novelURL, 8, -6))
+			local listingDoc = GETDocument(CHAPTER_LISTINGS_URL .. "0&wjm=" .. sub(novelURL, 8, -6))
 			extractChapters(listingDoc, chapterArray, chapterCount)
 
 			novelData.chapters = chapterArray
