@@ -136,16 +136,6 @@ end
 
 local searchMap = {}
 
-local POST = POST
-local RequestDocument = RequestDocument
-local FormBodyBuilder = FormBodyBuilder
-local fAdd, fBuild
-do
-	local temp = FormBodyBuilder()
-	fAdd = temp.add
-	fBuild = temp.build
-end
-
 local function selectLast(elements)
 	return elements:get(elements:size() - 1)
 end
@@ -169,7 +159,7 @@ local function search(filters)
 					:add("keyboard", query)
 					:build()
 			)
-			local document = Document(request)
+			local document = RequestDocument(request)
 
 			local pages = document:select("ul.pagination a")
 			if pages:size() > 0 then
