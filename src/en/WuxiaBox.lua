@@ -84,6 +84,7 @@ local SORT_BY_SELECT = 4
 
 local BASE_URL = "https://wuxiabox.com"
 local CHAPTER_LISTINGS_URL = "https://wuxiabox.com/e/extend/fy.php?page="
+local SEARCH_REQUEST_URL = "https://wuxiabox.com/e/search/index.php"
 
 local gsub = string.gsub
 local sub = string.sub
@@ -108,7 +109,7 @@ local function expandURL(smallURL)
 end
 
 -- Browse listings
-local function parseBrowse(novelListURL, selector)
+local function parseBrowse(novelListURL)
 	local doc = GETDocument(novelListURL)
 
 	if not select then
@@ -116,7 +117,7 @@ local function parseBrowse(novelListURL, selector)
 		select = doc.select
 	end
 
-	local novelList = select(doc, selector)
+	local novelList = select(doc, ".novel-item > a")
 	local listSize = novelList:size()
 
 	local finalListArray = {}
@@ -133,11 +134,48 @@ local function parseBrowse(novelListURL, selector)
 	return finalListArray
 end
 
--- Searching listings
-local function search(data)
-	local query = data[QUERY]
-	local page = data[PAGE]
-	-- Return Array<Novel.Info>
+local searchMap = {}
+
+local POST = POST
+local RequestDocument = RequestDocument
+local FormBodyBuilder = FormBodyBuilder
+local fAdd, fBuild
+do
+	local temp = FormBodyBuilder()
+	fAdd = temp.add
+	fBuild = temp.build
+end
+
+-- Search listings
+local function search(filters)
+	local query = filters[QUERY]
+	local page = filters[PAGE]
+	if query == "" then
+		return {}
+	end
+
+	local searchId = searchMap[query]
+	if not searchId then
+		local request = POST(
+			SEARCH_REQUEST_URL,
+			nil,
+			fBuild(
+				fAdd(
+					fAdd(fAdd(fAdd(FormBodyBuilder(), "show", "title"), "tempid", "1"), "tbname", "news"),
+					"keyboard",
+					query
+				)
+			)
+		)
+
+		local doc = RequestDocument(request)
+		local searchLink = selectFirst(doc, ".pagination > a:nth-of-type(2)"):attr("href")
+
+		searchId = sub(searchLink, 44)
+		searchMap[query] = searchId
+	end
+
+	return parseBrowse(expandURL("/e/search/result/index.php?page=" .. (page - 1) .. "&searchid=" .. searchId))
 end
 
 -- Helper
@@ -268,8 +306,7 @@ local listings = {
 		return parseBrowse(
 			expandURL(
 				"/list/" .. finalGenre .. "/" .. finalStatus .. "-" .. finalSortBy .. "-" .. currentPage .. ".html"
-			),
-			".novel-item > a"
+			)
 		)
 	end),
 }
@@ -279,7 +316,7 @@ local finalTable = {
 	name = "WuxiaBox",
 	imageURL = "",
 
-	hasSearch = false,
+	hasSearch = true,
 	hasCloudFlare = true,
 	isSearchIncrementing = true,
 
