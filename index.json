@@ -1,0 +1,27 @@
+{
+	"authors": [
+		{
+			"id": -1803679568,
+			"name": "Sylixe",
+			"desc": "Worked on WuxiaBox",
+			"imageURL": "",
+			"website": ""
+		}
+	],
+	"libraries": [],
+	"scripts": [
+		{
+			"id": 788888888,
+			"name": "WuxiaBox",
+			"fileName": "WuxiaBox",
+			"imageURL": "",
+			"lang": "en",
+			"ver": "1.0.0",
+			"libVer": "1.0.0",
+			"md5": "96de3a6f045017713d038333e72b5dbc49383a9bf04096c603921702512c2939",
+			"type": "LuaScript"
+		}
+	],
+	"styles": [],
+	"js": []
+}
