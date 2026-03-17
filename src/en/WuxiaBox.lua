@@ -163,7 +163,7 @@ local function search(filters)
 			else
 				return {
 					Novel({
-						title = "Error" .. tostring(pages:size()),
+						title = tostring(request),
 						link = "",
 						imageURL = "",
 					}),
