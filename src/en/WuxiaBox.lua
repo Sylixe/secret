@@ -169,9 +169,10 @@ local function search(filters)
 		)
 
 		local doc = RequestDocument(request)
-		local searchLink = selectFirst(doc, ".pagination > a:nth-of-type(2)"):attr("href")
+		local searchLink = selectFirst(doc, ".pagination > a:nth-of-type(2)")
+		searchLink = searchLink:attr("href")
 
-		searchId = sub(searchLink, 44)
+		searchId = sub(searchLink, 48)
 		searchMap[query] = searchId
 	end
 
