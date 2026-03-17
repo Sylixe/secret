@@ -168,7 +168,7 @@ end
 
 -- Novel page
 local function parseNovel(novelURL, loadChapters)
-	local doc = GETDocument(novelURL)
+	local doc = GETDocument(expandURL(novelURL))
 
 	local novelTitle = selectFirst(doc, ".novel-title"):text()
 	local novelImage = expandURL(selectFirst(doc, ".cover > img"):attr("data-src"))
