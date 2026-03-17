@@ -158,9 +158,9 @@ local function extractChapters(doc, array, count)
 		count = count + 1
 		local chapter = list:get(j)
 		array[count] = NovelChapter({
+			order = count,
 			title = chapter:selectFirst(".chapter-title"):text(),
 			link = chapter:attr("href"),
-			order = count,
 		})
 	end
 	return count
@@ -197,11 +197,10 @@ local function parseNovel(novelURL, loadChapters)
 			local chapterArray = {}
 			local chapterCount = 0
 
-			local listingDoc = GETDocument(CHAPTER_LISTINGS_URL .. "0" .. sub(novelURL, 28, -6))
-			chapterCount = extractChapters(listingDoc, chapterArray, chapterCount)
+			local listingDoc = GETDocument(CHAPTER_LISTINGS_URL .. "0" .. sub(novelURL, 8, -6))
+			extractChapters(listingDoc, chapterArray, chapterCount)
 
 			novelData.chapters = chapterArray
-			novelData.chapterCount = chapterCount
 		else
 			local lastChapterURL = lastChapterSelector:attr("href")
 			local novelID, lastPageNumer
@@ -220,7 +219,6 @@ local function parseNovel(novelURL, loadChapters)
 			end
 
 			novelData.chapters = chapterArray
-			novelData.chapterCount = chapterCount
 		end
 	end
 
@@ -229,14 +227,16 @@ end
 
 -- Reader page
 local function getPassage(chapterURL)
-	local doc = GETDocument(expandURL(chapterURL))
-
-	local title = selectFirst(doc, ".titles > h2"):text()
-	local chapter = selectFirst(doc, ".chapter-content")
-	selectFirst(chapter, "div"):remove()
-	chapter = Document(chapter:text()):selectFirst("body")
-	chapter:child(0):before("<h1>" .. title .. "</h1>")
-	return pageOfElem(chapter, true)
+	local document = GETDocument(expandURL(chapterURL))
+	local chap = document:selectFirst(".chapter-content")
+	local title = document:selectFirst(".chapter-header h2"):text()
+	-- This is for the sake of consistant styling
+	chap:select("br:nth-child(even)"):remove()
+	chap = tostring(chap):gsub("<div", "<p"):gsub("</div", "</p"):gsub("<br>", "</p><p>")
+	chap = Document(chap):selectFirst("body")
+	-- Adds Chapter Title
+	chap:child(0):before("<h1>" .. title .. "</h1>")
+	return pageOfElem(chap, true)
 end
 
 local filterModel = {
