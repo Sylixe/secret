@@ -254,7 +254,7 @@ local listings = {
 		local currentPage = filters[PAGE] - 1
 
 		local finalGenre = "All"
-		local finalStatus = "All"
+		local finalStatus = "all"
 		local finalSortBy = "newstime"
 		if genreIndex ~= nil and genreIndex ~= 0 then
 			finalGenre = GENRE_LIST[genreIndex + 1]
@@ -292,7 +292,7 @@ local finalTable = {
 
 	baseURL = BASE_URL,
 	listings = listings,
-	searchFiltersModel = filterModel,
+	searchFilters = filterModel,
 
 	search = search,
 	parseNovel = parseNovel,
