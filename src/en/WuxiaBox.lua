@@ -166,7 +166,9 @@ local function search(filters)
 					searchMap[query] = selectLast(pages):attr("href"):match(".*searchid=([0-9]*).*")
 				end
 				return parseBrowse(
-					expandURL("/e/search/result/index.php?page=" .. (page - 1) .. "&searchid=" .. searchId)
+					expandURL(
+						"/e/search/result/index.php?page=" .. (page - 1) .. "&searchid=" .. tostring(searchMap[query])
+					)
 				)
 			else
 				local pages = document:select("ul.pagination a")
