@@ -83,7 +83,7 @@ local STATUS_SELECT = 3
 local SORT_BY_SELECT = 4
 
 local BASE_URL = "https://wuxiabox.com"
-local CHAPTER_LISTINGS_URL = "https://wuxiabox.com/e/extend/fy1.php?page="
+local CHAPTER_LISTINGS_URL = "https://wuxiabox.com/e/extend/fy.php?page="
 
 local gsub = string.gsub
 local sub = string.sub
@@ -200,7 +200,7 @@ local function parseNovel(novelURL, loadChapters)
 			local listingDoc = GETDocument(CHAPTER_LISTINGS_URL .. "0&wjm=" .. sub(novelURL, 8, -6))
 			extractChapters(listingDoc, chapterArray, chapterCount)
 
-			novelData.chapters = AsList(chapterArray)
+			novelData.chapters = chapterArray
 		else
 			local lastChapterURL = lastChapterSelector:attr("href")
 			local novelID, lastPageNumer
@@ -218,7 +218,7 @@ local function parseNovel(novelURL, loadChapters)
 				chapterCount = extractChapters(listingDoc, chapterArray, chapterCount)
 			end
 
-			novelData.chapters = AsList(chapterArray)
+			novelData.chapters = chapterArray
 		end
 	end
 
