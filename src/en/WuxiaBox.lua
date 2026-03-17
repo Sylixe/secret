@@ -149,17 +149,12 @@ local function search(filters)
 		if searchId ~= nil then
 			return parseBrowse(expandURL("/e/search/result/index.php?page=" .. (page - 1) .. "&searchid=" .. searchId))
 		else
-			local request = POST(
-				BASE_URL .. "/e/search/index.php",
-				nil,
-				FormBodyBuilder()
-					:add("show", "title")
-					:add("tempid", "1")
-					:add("tbname", "news")
-					:add("keyboard", query)
-					:build()
-			)
-			local document = RequestDocument(request)
+			local request =
+				POST("https://www.wuxiabox.com/e/search/index.php?show=title&tempid=1&tbname=news&keyboard=" .. query, {
+					["Content-Type"] = "application/json",
+					["Content-Length"] = "0",
+				})
+			local document = Document(request)
 
 			local pages = document:select("ul.pagination a")
 			if pages:size() > 0 then
