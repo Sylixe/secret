@@ -150,10 +150,7 @@ local function search(filters)
 			return parseBrowse(expandURL("/e/search/result/index.php?page=" .. (page - 1) .. "&searchid=" .. searchId))
 		else
 			local request =
-				POST("https://www.wuxiabox.com/e/search/index.php?show=title&tempid=1&tbname=news&keyboard=" .. query, {
-					["Content-Type"] = "application/json",
-					["Content-Length"] = "0",
-				})
+				POST("https://www.wuxiabox.com/e/search/index.php?show=title&tempid=1&tbname=news&keyboard=" .. query)
 			local document = Document(request)
 
 			local pages = document:select("ul.pagination a")
