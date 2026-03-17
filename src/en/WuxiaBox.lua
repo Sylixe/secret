@@ -153,12 +153,12 @@ end
 -- Helper 2
 local function extractChapters(doc, array, count)
 	local list = doc:select(".chapter-list > li > a")
-	local size = list:size()
-	for j = 0, size - 1 do
+	local listSize = list:size()
+	for j = 0, listSize - 1 do
 		count = count + 1
 		local chapter = list:get(j)
 		array[count] = NovelChapter({
-			order = count - 1,
+			order = count,
 			title = chapter:selectFirst(".chapter-title"):text(),
 			link = chapter:attr("href"),
 		})
@@ -200,7 +200,7 @@ local function parseNovel(novelURL, loadChapters)
 			local listingDoc = GETDocument(CHAPTER_LISTINGS_URL .. "0&wjm=" .. sub(novelURL, 8, -6))
 			extractChapters(listingDoc, chapterArray, chapterCount)
 
-			novelData.chapters = chapterArray
+			novelData.chapters = AsList(chapterArray)
 		else
 			local lastChapterURL = lastChapterSelector:attr("href")
 			local novelID, lastPageNumer
@@ -218,7 +218,7 @@ local function parseNovel(novelURL, loadChapters)
 				chapterCount = extractChapters(listingDoc, chapterArray, chapterCount)
 			end
 
-			novelData.chapters = chapterArray
+			novelData.chapters = AsList(chapterArray)
 		end
 	end
 
