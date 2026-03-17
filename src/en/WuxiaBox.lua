@@ -164,6 +164,12 @@ local function search(filters)
 				local pages = document:select("ul.pagination a")
 				if pages:size() > 0 then
 					searchMap[query] = selectLast(pages):attr("href"):match(".*searchid=([0-9]*).*")
+				else
+					return { Novel({
+						title = tostring(pages:size()),
+						link = "",
+						imageURL = "",
+					}) }
 				end
 				return parseBrowse(
 					expandURL(
