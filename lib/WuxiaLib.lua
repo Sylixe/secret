@@ -1,4 +1,4 @@
--- {"ver":"1.0.5","author":"Sylixe"}
+-- {"ver":"1.0.6","author":"Sylixe"}
 
 local GENRE_LIST = {
 	"All",
@@ -360,17 +360,6 @@ local listings = {
 
 -- Return extension table
 return function()
-	local funcs = {
-		search = search,
-		parseNovel = parseNovel,
-		getPassage = getPassage,
-		shrinkURL = shrinkURL,
-		expandURL = expandURL,
-	}
-	funcs.__index = funcs
-
-	local final = setmetatable({}, funcs)
-
 	local finalTable = {
 		id = 788888888,
 		name = "WuxiaBox",
@@ -386,6 +375,21 @@ return function()
 		listings = listings,
 		searchFilters = filterModel,
 	}
+
+	local funcs = {
+		search = search,
+		parseNovel = parseNovel,
+		getPassage = getPassage,
+		shrinkURL = shrinkURL,
+		expandURL = expandURL,
+	}
+
+	funcs.__index = function(_, k)
+		local d = funcs[k]
+		return (type(d) == "function" and wrap(finalTable, d) or d)
+	end
+
+	local final = setmetatable({}, funcs)
 
 	for index, value in pairs(finalTable) do
 		final[index] = value
