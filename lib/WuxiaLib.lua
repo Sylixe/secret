@@ -101,16 +101,22 @@ local NovelChapter = NovelChapter
 
 local select, selectFirst
 
-local function shrinkURL(longURL)
+local funcs = {
+	selectLast = function(elements)
+		return elements:get(elements:size() - 1)
+	end,
+}
+
+function funcs:shrinkURL(longURL)
 	return sub(longURL, 21)
 end
 
-local function expandURL(smallURL)
+function funcs:expandURL(smallURL)
 	return BASE_URL .. smallURL
 end
 
 -- Browse listings
-local function parseBrowse(novelListURL)
+function funcs:parseBrowse(novelListURL)
 	local doc = GETDocument(novelListURL)
 
 	if not select then
@@ -127,7 +133,7 @@ local function parseBrowse(novelListURL)
 
 		finalListArray[i + 1] = Novel({
 			title = novelInfo:attr("title"),
-			imageURL = expandURL(selectFirst(novelInfo, ".cover-wrap > figure > img"):attr("data-src")),
+			imageURL = self.expandURL(selectFirst(novelInfo, ".cover-wrap > figure > img"):attr("data-src")),
 			link = novelInfo:attr("href"),
 		})
 	end
@@ -137,18 +143,16 @@ end
 
 local searchMap = {}
 
-local function selectLast(elements)
-	return elements:get(elements:size() - 1)
-end
-
 -- Search listings
-local function search(self, filters)
+function funcs:search(filters)
 	local query = filters[QUERY]
 	local page = filters[PAGE]
 	if query ~= "" then
 		local searchId = searchMap[query]
 		if searchId ~= nil then
-			return parseBrowse(expandURL("/e/search/result/index.php?page=" .. (page - 1) .. "&searchid=" .. searchId))
+			return self.parseBrowse(
+				self.expandURL("/e/search/result/index.php?page=" .. (page - 1) .. "&searchid=" .. searchId)
+			)
 		else
 			local request = POST(
 				self.baseURL .. "/e/search/index.php",
@@ -163,10 +167,10 @@ local function search(self, filters)
 			local document = RequestDocument(request)
 			local pages = document:select("ul.pagination a")
 			if pages:size() > 0 then
-				searchMap[query] = selectLast(pages):attr("href"):match(".*searchid=([0-9]*).*")
+				searchMap[query] = self.selectLast(pages):attr("href"):match(".*searchid=([0-9]*).*")
 				searchId = searchMap[query]
-				return parseBrowse(
-					expandURL("/e/search/result/index.php?page=" .. (page - 1) .. "&searchid=" .. searchId)
+				return self.parseBrowse(
+					self.expandURL("/e/search/result/index.php?page=" .. (page - 1) .. "&searchid=" .. searchId)
 				)
 			else
 				return {}
@@ -234,11 +238,11 @@ local function extractChapters(doc, array, count)
 end
 
 -- Novel page
-local function parseNovel(novelURL, loadChapters)
-	local doc = GETDocument(expandURL(novelURL))
+function funcs:parseNovel(novelURL, loadChapters)
+	local doc = GETDocument(self.expandURL(novelURL))
 
 	local novelTitle = selectFirst(doc, ".novel-title"):text()
-	local novelImage = expandURL(selectFirst(doc, ".cover > img"):attr("data-src"))
+	local novelImage = self.expandURL(selectFirst(doc, ".cover > img"):attr("data-src"))
 	local novelDescription =
 		sub(gsub(gsub(gsub(selectFirst(doc, ".content"):text() or "", "<br>", "\n"), "<p>", ""), "</p>", "\n"), 1, -2)
 	local novelStatus = STATUS_PICKER[selectFirst(doc, ".header-stats > span:nth-of-type(2) > strong"):text()]
@@ -293,8 +297,8 @@ local function parseNovel(novelURL, loadChapters)
 end
 
 -- Reader page
-local function getPassage(chapterURL)
-	local document = GETDocument(expandURL(chapterURL))
+function funcs:getPassage(chapterURL)
+	local document = GETDocument(self.expandURL(chapterURL))
 	local chap = selectFirst(document, ".chapter-content")
 	local title = selectFirst(document, ".chapter-header h2"):text()
 	chap:prepend("<h1>" .. title .. "</h1>")
@@ -342,17 +346,6 @@ local listings = {
 
 -- Return extension table
 return function()
-	local funcs = {
-		search = search,
-		parseNovel = parseNovel,
-		getPassage = getPassage,
-		shrinkURL = shrinkURL,
-		expandURL = expandURL,
-		selectLast = function(elements)
-			return elements:get(elements:size() - 1)
-		end,
-	}
-
 	local finalTable = {
 		id = 788888888,
 		name = "WuxiaBox",
