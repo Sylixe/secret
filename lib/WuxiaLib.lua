@@ -149,9 +149,7 @@ local function search(self, filters)
 		local searchId = searchMap[query]
 		if searchId ~= nil then
 			return self.parseBrowse(
-				GETDocument(
-					self.expandURL("/e/search/result/index.php?page=" .. (page - 1) .. "&searchid=" .. searchId)
-				)
+				self.expandURL("/e/search/result/index.php?page=" .. (page - 1) .. "&searchid=" .. searchId)
 			)
 		else
 			local request = POST(
@@ -165,25 +163,15 @@ local function search(self, filters)
 					:build()
 			)
 			local document = RequestDocument(request)
-			if page == 1 then
-				local pages = document:select("ul.pagination a")
-				if pages:size() > 0 then
-					searchMap[query] = self.selectLast(pages):attr("href"):match(".*searchid=([0-9]*).*")
-				end
-				return self.parseBrowse(document)
+			local pages = document:select("ul.pagination a")
+			if pages:size() > 0 then
+				searchMap[query] = self.selectLast(pages):attr("href"):match(".*searchid=([0-9]*).*")
+				searchId = searchMap[query]
+				return self.parseBrowse(
+					self.expandURL("/e/search/result/index.php?page=" .. (page - 1) .. "&searchid=" .. searchId)
+				)
 			else
-				local pages = document:select("ul.pagination a")
-				if pages:size() > 0 then
-					searchMap[query] = self.selectLast(pages):attr("href"):match(".*searchid=([0-9]*).*")
-					searchId = searchMap[query]
-					return self.parseBrowse(
-						GETDocument(
-							expandURL("/e/search/result/index.php?page=" .. (page - 1) .. "&searchid=" .. searchId)
-						)
-					)
-				else
-					return {}
-				end
+				return {}
 			end
 		end
 	end
