@@ -6,6 +6,13 @@
 			"desc": "Worked on WuxiaBox, WuxiaLib",
 			"imageURL": "",
 			"website": ""
+		},
+		{
+			"id": -376799541,
+			"name": "Jobobby04",
+			"desc": "Worked on WuxiaBox",
+			"imageURL": "",
+			"website": ""
 		}
 	],
 	"libraries": [
@@ -26,6 +33,17 @@
 			"ver": "1.0.6",
 			"libVer": "1.0.6",
 			"md5": "396bf07dd058a57970ca09577f99cd223ac9aae8fb24b20a6bd15de35c19ae94",
+			"type": "LuaScript"
+		},
+		{
+			"id": 1308639900,
+			"name": "WuxiaBox",
+			"fileName": "intergal",
+			"imageURL": "https://jobobby04.github.io/ShosetsuExtensions/master/icons/wuxia_box.png",
+			"lang": "en",
+			"ver": "1.1.5",
+			"libVer": "1.0.0",
+			"md5": "d95102f8e2f95bf04bd4b6fe1ed8df1fbad53c0e6853b57e85442a02509802ca",
 			"type": "LuaScript"
 		}
 	],
