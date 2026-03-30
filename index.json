@@ -16,9 +16,9 @@
 			"fileName": "WuxiaBox",
 			"imageURL": "",
 			"lang": "en",
-			"ver": "1.0.0",
+			"ver": "1.0.1",
 			"libVer": "1.0.0",
-			"md5": "b2fa55e38c6c851f482ba1f37bbc3bdb50a92fddb7e253c42ce12a4456e45f8e",
+			"md5": "38df41ffdad5f5e6fedd3a960475e4922b37de2db9c8205f1037637857741ee1",
 			"type": "LuaScript"
 		}
 	],

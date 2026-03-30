@@ -1,63 +1,63 @@
--- {"id":788888888,"ver":"1.0.0","libVer":"1.0.0","author":"Sylixe"}
+-- {"id":788888888,"ver":"1.0.1","libVer":"1.0.0","author":"Sylixe"}
 
 local GENRE_LIST = {
 	"All",
-	"Fan-Fiction",
-	"Faloo",
 	"Action",
 	"Adventure",
+	"Chinese",
 	"Comedy",
 	"Contemporary Romance",
 	"Drama",
 	"Eastern Fantasy",
+	"Erciyuan",
+	"Faloo",
+	"Fan-Fiction",
 	"Fantasy",
 	"Fantasy Romance",
+	"Game",
 	"Gender Bender",
 	"Harem",
+	"Hentai",
 	"Historical",
 	"Horror",
+	"Isekai",
+	"Japanese",
 	"Josei",
 	"Lolicon",
+	"Magic",
 	"Magical Realism",
 	"Martial Arts",
 	"Mecha",
+	"Military",
 	"Mystery",
+	"Official Circles",
 	"Psychological",
 	"Romance",
 	"School Life",
 	"Sci-fi",
+	"Science Fiction",
 	"Seinen",
 	"Shoujo",
+	"Shoujo Ai",
 	"Shounen",
 	"Shounen Ai",
 	"Slice of Life",
 	"Sports",
 	"Supernatural",
+	"Suspense Thriller",
 	"Tragedy",
+	"Travel Through Time",
+	"Two-dimensional",
+	"Urban",
+	"Urban Life",
 	"Video Games",
+	"Virtual Reality",
 	"Wuxia",
+	"Wuxia Xianxia",
 	"Xianxia",
 	"Xuanhuan",
 	"Yaoi",
-	"Two-dimensional",
-	"Erciyuan",
-	"Game",
-	"Military",
-	"Urban Life",
 	"Yuri",
-	"Chinese",
-	"Japanese",
-	"Hentai",
-	"Isekai",
-	"Magic",
-	"Shoujo Ai",
-	"Urban",
-	"Virtual Reality",
-	"Wuxia Xianxia",
-	"Official Circles",
-	"Science Fiction",
-	"Suspense Thriller",
-	"Travel Through Time",
 }
 
 local STATUS_LIST = {
@@ -93,6 +93,7 @@ local find = string.find
 local tostring = tostring
 
 local POST = POST
+local pageOfElem = pageOfElem
 
 local GETDocument = GETDocument
 local RequestDocument = RequestDocument
@@ -102,7 +103,8 @@ local Novel = Novel
 local NovelInfo = NovelInfo
 local NovelChapter = NovelChapter
 
-local select, selectFirst
+local select, selectFirst, attr, text
+local size, get
 local fBuild, fAdd
 do
 	local temp = FormBodyBuilder()
@@ -114,13 +116,7 @@ local function shrinkURL(longURL)
 	return sub(longURL, 21)
 end
 
-local function printTable(tab)
-	for i, v in pairs(tab) do
-		print(i, v)
-	end
-end
-
-local function expandURL(smallURL, i)
+local function expandURL(smallURL)
 	return BASE_URL .. smallURL
 end
 
@@ -131,19 +127,27 @@ local function parseBrowse(novelListURL)
 	if not select then
 		selectFirst = doc.selectFirst
 		select = doc.select
+		attr = doc.attr
+		text = doc.text
 	end
 
 	local novelList = select(doc, ".novel-item > a")
-	local listSize = novelList:size()
+
+	if not size then
+		size = novelList.size
+		get = novelList.get
+	end
+
+	local listSize = size(novelList)
 
 	local finalListArray = {}
 	for i = 0, listSize - 1 do
-		local novelInfo = novelList:get(i)
+		local novelInfo = get(novelList, i)
 
 		finalListArray[i + 1] = Novel({
-			title = novelInfo:attr("title"),
-			imageURL = expandURL(selectFirst(novelInfo, ".cover-wrap > figure > img"):attr("data-src")),
-			link = novelInfo:attr("href"),
+			title = attr(novelInfo, "title"),
+			imageURL = expandURL(attr(selectFirst(novelInfo, ".cover-wrap > figure > img"), "data-src")),
+			link = attr(novelInfo, "href"),
 		})
 	end
 
@@ -176,7 +180,7 @@ local function search(filters)
 
 		local doc = RequestDocument(request)
 
-		local searchLink = selectFirst(doc, ".pagination > a:nth-of-type(2)"):attr("href")
+		local searchLink = attr(selectFirst(doc, ".pagination > a:nth-of-type(2)"), "href")
 
 		searchId = sub(searchLink, 44)
 		searchMap[query] = searchId
@@ -188,24 +192,24 @@ end
 -- Helper
 local function genreOrTagSelector(doc, section, finalTable)
 	local genreList = select(doc, ".categories > ul:nth-of-type(" .. tostring(section) .. ") > li > a")
-	local listSize = genreList:size()
+	local listSize = size(genreList)
 
 	for i = 0, listSize - 1 do
-		finalTable[i + 1] = genreList:get(i):text()
+		finalTable[i + 1] = text(get(genreList, i))
 	end
 end
 
 -- Helper 2
 local function extractChapters(doc, array, count)
-	local list = doc:select(".chapter-list > li > a")
-	local listSize = list:size()
+	local list = select(doc, ".chapter-list > li > a")
+	local listSize = size(list)
 	for j = 0, listSize - 1 do
 		count = count + 1
-		local chapter = list:get(j)
+		local chapter = get(list, j)
 		array[count] = NovelChapter({
 			order = count,
-			title = chapter:selectFirst(".chapter-title"):text(),
-			link = chapter:attr("href"),
+			title = text(selectFirst(chapter, ".chapter-title")),
+			link = attr(chapter, "href"),
 		})
 	end
 	return count
@@ -215,16 +219,16 @@ end
 local function parseNovel(novelURL, loadChapters)
 	local doc = GETDocument(expandURL(novelURL))
 
-	local novelTitle = selectFirst(doc, ".novel-title"):text()
-	local novelImage = expandURL(selectFirst(doc, ".cover > img"):attr("data-src"))
+	local novelTitle = text(selectFirst(doc, ".novel-title"))
+	local novelImage = expandURL(attr(selectFirst(doc, ".cover > img"), "data-src"))
 	local novelDescription =
-		sub(gsub(gsub(gsub(selectFirst(doc, ".content"):text() or "", "<br>", "\n"), "<p>", ""), "</p>", "\n"), 1, -2)
-	local novelStatus = STATUS_PICKER[selectFirst(doc, ".header-stats > span:nth-of-type(2) > strong"):text()]
+		sub(gsub(gsub(gsub(text(selectFirst(doc, ".content")), "<br>", "\n"), "<p>", ""), "</p>", "\n"), 1, -2)
+	local novelStatus = STATUS_PICKER[text(selectFirst(doc, ".header-stats > span:nth-of-type(2) > strong"))]
 	local novelTags = {}
 	genreOrTagSelector(doc, 2, novelTags)
 	local novelGenres = {}
 	genreOrTagSelector(doc, 1, novelGenres)
-	local novelAuthor = { selectFirst(doc, ".author > span:nth-of-type(2)"):text() }
+	local novelAuthor = { text(selectFirst(doc, ".author > span:nth-of-type(2)")) }
 
 	local novelData = {
 		title = novelTitle,
@@ -247,11 +251,11 @@ local function parseNovel(novelURL, loadChapters)
 
 			novelData.chapters = chapterArray
 		else
-			local lastChapterURL = lastChapterSelector:attr("href")
+			local lastChapterURL = attr(lastChapterSelector, "href")
 			local novelID, lastPageNumer
 			do
 				local ampersandLocation = find(lastChapterURL, "&", 23, true)
-				novelID = sub(lastChapterURL, ampersandLocation) -- + 5
+				novelID = sub(lastChapterURL, ampersandLocation)
 				lastPageNumer = sub(lastChapterURL, 23, ampersandLocation - 1)
 			end
 
@@ -274,7 +278,7 @@ end
 local function getPassage(chapterURL)
 	local document = GETDocument(expandURL(chapterURL))
 	local chap = selectFirst(document, ".chapter-content")
-	local title = selectFirst(document, ".chapter-header h2"):text()
+	local title = text(selectFirst(document, ".chapter-header h2"))
 	chap:prepend("<h1>" .. title .. "</h1>")
 	return pageOfElem(chap, true)
 end
