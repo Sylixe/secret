@@ -1,4 +1,4 @@
--- {"ver":"1.0.4","author":"Sylixe"}
+-- {"ver":"1.0.5","author":"Sylixe"}
 
 local GENRE_LIST = {
 	"All",
