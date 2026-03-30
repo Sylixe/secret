@@ -91,6 +91,7 @@ local gsub = string.gsub
 local sub = string.sub
 local find = string.find
 local tostring = tostring
+local tonumber = tonumber
 
 local POST = POST
 local pageOfElem = pageOfElem
@@ -144,8 +145,18 @@ local function parseBrowse(novelListURL)
 	for i = 0, listSize - 1 do
 		local novelInfo = get(novelList, i)
 
+		local novelTitle = attr(novelInfo, "title")
+		local novelChapterCount = tonumber(sub(text(selectFirst(novelInfo, ".novel-stats > span")), 36, -10))
+
+		local finalNovelTitle
+		if novelChapterCount then
+			finalNovelTitle = "[" .. tostring(novelChapterCount) .. "] "
+		else
+			finalNovelTitle = "[?] " .. novelTitle
+		end
+
 		finalListArray[i + 1] = Novel({
-			title = attr(novelInfo, "title"),
+			title = finalNovelTitle,
 			imageURL = expandURL(attr(selectFirst(novelInfo, ".cover-wrap > figure > img"), "data-src")),
 			link = attr(novelInfo, "href"),
 		})
@@ -179,8 +190,13 @@ local function search(filters)
 		)
 
 		local doc = RequestDocument(request)
+		local selectedURL = selectFirst(doc, ".pagination > a:nth-of-type(2)")
 
-		local searchLink = attr(selectFirst(doc, ".pagination > a:nth-of-type(2)"), "href")
+		if not selectedURL then
+			return {}
+		end
+
+		local searchLink = attr(selectedURL, "href")
 
 		searchId = sub(searchLink, 44)
 		searchMap[query] = searchId
@@ -223,15 +239,24 @@ local function parseNovel(novelURL, loadChapters)
 	local novelImage = expandURL(attr(selectFirst(doc, ".cover > img"), "data-src"))
 	local novelDescription =
 		sub(gsub(gsub(gsub(text(selectFirst(doc, ".content")), "<br>", "\n"), "<p>", ""), "</p>", "\n"), 1, -2)
-	local novelStatus = STATUS_PICKER[text(selectFirst(doc, ".header-stats > span:nth-of-type(2) > strong"))]
+	local novelChapterCount = sub(text(selectFirst(doc, ".header-stats > span:first-child > strong")), 29)
+	local novelStatusString = text(selectFirst(doc, ".header-stats > span:nth-of-type(2) > strong"))
+	local novelStatus = STATUS_PICKER[novelStatusString]
 	local novelTags = {}
 	genreOrTagSelector(doc, 2, novelTags)
 	local novelGenres = {}
 	genreOrTagSelector(doc, 1, novelGenres)
 	local novelAuthor = { text(selectFirst(doc, ".author > span:nth-of-type(2)")) }
 
+	local finalNovelTitle
+	if novelStatusString == "Ongoing" then
+		finalNovelTitle = "(" .. tostring(novelChapterCount) .. ") "
+	else
+		finalNovelTitle = "<" .. tostring(novelChapterCount) .. "> "
+	end
+
 	local novelData = {
-		title = novelTitle,
+		title = finalNovelTitle,
 		imageURL = novelImage,
 		description = novelDescription,
 		status = novelStatus,
