@@ -1,21 +1,21 @@
 {
 	"authors": [
 		{
-			"id": -376799541,
-			"name": "Jobobby04",
-			"desc": "Worked on WuxiaBox",
-			"imageURL": "",
-			"website": ""
-		},
-		{
 			"id": -1803679568,
 			"name": "Sylixe",
-			"desc": "Worked on WuxiaBox",
+			"desc": "Worked on WuxiaBox, WuxiaLib",
 			"imageURL": "",
 			"website": ""
 		}
 	],
-	"libraries": [],
+	"libraries": [
+		{
+			"name": "WuxiaLib",
+			"ver": "1.0.0",
+			"url": null,
+			"hash": "9c994285d2671dd914f9765ab623c70f4c512d4272a918aa19f766c26a6f286b"
+		}
+	],
 	"scripts": [
 		{
 			"id": 788888888,
@@ -25,18 +25,7 @@
 			"lang": "en",
 			"ver": "1.0.0",
 			"libVer": "1.0.0",
-			"md5": "8588fa628bf04d5d22e86619f25be851ccc2862e9b34958447397c3e11d870cb",
-			"type": "LuaScript"
-		},
-		{
-			"id": 999991999,
-			"name": "WuxiaBox",
-			"fileName": "integral",
-			"imageURL": "https://jobobby04.github.io/ShosetsuExtensions/master/icons/wuxia_box.png",
-			"lang": "en",
-			"ver": "1.1.5",
-			"libVer": "1.0.0",
-			"md5": "6921cf01be6132eb9f51b10a966866a99edaa5457fe51a784fa3e1e6f4948239",
+			"md5": "be5c05aca68679ccee038b169130610bf666d1b928e6a604de49c71f86d01c7c",
 			"type": "LuaScript"
 		}
 	],
