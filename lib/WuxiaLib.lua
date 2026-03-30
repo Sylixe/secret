@@ -365,7 +365,7 @@ return function()
 	finalTable = setmetatable(finalTable or {}, {
 		__index = function(_, k)
 			local d = funcs[k]
-			return (type(d) == "function" and wrap(finalTable, d) or d)
+			return d
 		end,
 	})
 
