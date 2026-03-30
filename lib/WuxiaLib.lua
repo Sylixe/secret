@@ -360,9 +360,18 @@ local listings = {
 
 -- Return extension table
 return function()
+	local funcs = {
+		search = search,
+		parseNovel = parseNovel,
+		getPassage = getPassage,
+		shrinkURL = shrinkURL,
+		expandURL = expandURL,
+	}
+
 	local finalTable = {
 		id = 788888888,
 		name = "WuxiaBox",
+		baseURL = BASE_URL,
 		imageURL = "",
 
 		hasSearch = true,
@@ -371,16 +380,16 @@ return function()
 
 		chapterType = ChapterType.HTML,
 
-		baseURL = BASE_URL,
 		listings = listings,
 		searchFilters = filterModel,
-
-		search = search,
-		parseNovel = parseNovel,
-		getPassage = getPassage,
-		shrinkURL = shrinkURL,
-		expandURL = expandURL,
 	}
+
+	finalTable = setmetatable(finalTable or {}, {
+		__index = function(_, k)
+			local d = funcs[k]
+			return (type(d) == "function" and wrap(finalTable, d) or d)
+		end,
+	})
 
 	return finalTable
 end
