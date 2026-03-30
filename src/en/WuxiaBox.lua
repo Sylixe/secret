@@ -146,11 +146,11 @@ local function parseBrowse(novelListURL)
 		local novelInfo = get(novelList, i)
 
 		local novelTitle = attr(novelInfo, "title")
-		local novelChapterCount = tonumber(sub(text(selectFirst(novelInfo, ".novel-stats > span")), 36, -10))
+		local novelChapterCount = sub(text(selectFirst(novelInfo, ".novel-stats > span")), 6, -10)
 
 		local finalNovelTitle
 		if novelChapterCount then
-			finalNovelTitle = "[" .. tostring(novelChapterCount) .. "] "
+			finalNovelTitle = "[" .. tostring(novelChapterCount) .. "] " .. novelTitle
 		else
 			finalNovelTitle = "[?] " .. novelTitle
 		end
@@ -239,7 +239,7 @@ local function parseNovel(novelURL, loadChapters)
 	local novelImage = expandURL(attr(selectFirst(doc, ".cover > img"), "data-src"))
 	local novelDescription =
 		sub(gsub(gsub(gsub(text(selectFirst(doc, ".content")), "<br>", "\n"), "<p>", ""), "</p>", "\n"), 1, -2)
-	local novelChapterCount = sub(text(selectFirst(doc, ".header-stats > span:first-child > strong")), 29)
+	local novelChapterCount = text(selectFirst(doc, ".header-stats > span:first-child > strong"))
 	local novelStatusString = text(selectFirst(doc, ".header-stats > span:nth-of-type(2) > strong"))
 	local novelStatus = STATUS_PICKER[novelStatusString]
 	local novelTags = {}
@@ -250,9 +250,9 @@ local function parseNovel(novelURL, loadChapters)
 
 	local finalNovelTitle
 	if novelStatusString == "Ongoing" then
-		finalNovelTitle = "(" .. tostring(novelChapterCount) .. ") "
+		finalNovelTitle = "(" .. tostring(novelChapterCount) .. ") " .. novelTitle
 	else
-		finalNovelTitle = "<" .. tostring(novelChapterCount) .. "> "
+		finalNovelTitle = "<" .. tostring(novelChapterCount) .. "> " .. novelTitle
 	end
 
 	local novelData = {
