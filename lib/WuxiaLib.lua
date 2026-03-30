@@ -148,9 +148,7 @@ local function search(self, filters)
 	if query ~= "" then
 		local searchId = searchMap[query]
 		if searchId ~= nil then
-			return self.parseBrowse(
-				self.expandURL("/e/search/result/index.php?page=" .. (page - 1) .. "&searchid=" .. searchId)
-			)
+			return parseBrowse(expandURL("/e/search/result/index.php?page=" .. (page - 1) .. "&searchid=" .. searchId))
 		else
 			local request = POST(
 				self.baseURL .. "/e/search/index.php",
@@ -165,10 +163,10 @@ local function search(self, filters)
 			local document = RequestDocument(request)
 			local pages = document:select("ul.pagination a")
 			if pages:size() > 0 then
-				searchMap[query] = self.selectLast(pages):attr("href"):match(".*searchid=([0-9]*).*")
+				searchMap[query] = selectLast(pages):attr("href"):match(".*searchid=([0-9]*).*")
 				searchId = searchMap[query]
-				return self.parseBrowse(
-					self.expandURL("/e/search/result/index.php?page=" .. (page - 1) .. "&searchid=" .. searchId)
+				return parseBrowse(
+					expandURL("/e/search/result/index.php?page=" .. (page - 1) .. "&searchid=" .. searchId)
 				)
 			else
 				return {}
