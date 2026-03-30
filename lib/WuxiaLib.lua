@@ -1,4 +1,4 @@
--- {"ver":"1.0.1","author":"Sylixe"}
+-- {"ver":"1.0.4","author":"Sylixe"}
 
 local GENRE_LIST = {
 	"All",
@@ -142,16 +142,20 @@ local function selectLast(elements)
 end
 
 -- Search listings
-local function search(filters)
+local function search(self, filters)
 	local query = filters[QUERY]
 	local page = filters[PAGE]
 	if query ~= "" then
 		local searchId = searchMap[query]
 		if searchId ~= nil then
-			return parseBrowse(expandURL("/e/search/result/index.php?page=" .. (page - 1) .. "&searchid=" .. searchId))
+			return self.parseBrowse(
+				GETDocument(
+					self.expandURL("/e/search/result/index.php?page=" .. (page - 1) .. "&searchid=" .. searchId)
+				)
+			)
 		else
 			local request = POST(
-				BASE_URL .. "/e/search/index.php",
+				self.baseURL .. "/e/search/index.php",
 				nil,
 				FormBodyBuilder()
 					:add("show", "title")
@@ -164,26 +168,18 @@ local function search(filters)
 			if page == 1 then
 				local pages = document:select("ul.pagination a")
 				if pages:size() > 0 then
-					searchMap[query] = selectLast(pages):attr("href"):match(".*searchid=([0-9]*).*")
-				else
-					return { Novel({
-						title = tostring(document),
-						link = "",
-						imageURL = "",
-					}) }
+					searchMap[query] = self.selectLast(pages):attr("href"):match(".*searchid=([0-9]*).*")
 				end
-				return parseBrowse(
-					expandURL(
-						"/e/search/result/index.php?page=" .. (page - 1) .. "&searchid=" .. tostring(searchMap[query])
-					)
-				)
+				return self.parseBrowse(document)
 			else
 				local pages = document:select("ul.pagination a")
 				if pages:size() > 0 then
-					searchMap[query] = selectLast(pages):attr("href"):match(".*searchid=([0-9]*).*")
+					searchMap[query] = self.selectLast(pages):attr("href"):match(".*searchid=([0-9]*).*")
 					searchId = searchMap[query]
-					return parseBrowse(
-						expandURL("/e/search/result/index.php?page=" .. (page - 1) .. "&searchid=" .. searchId)
+					return self.parseBrowse(
+						GETDocument(
+							expandURL("/e/search/result/index.php?page=" .. (page - 1) .. "&searchid=" .. searchId)
+						)
 					)
 				else
 					return {}
@@ -366,6 +362,9 @@ return function()
 		getPassage = getPassage,
 		shrinkURL = shrinkURL,
 		expandURL = expandURL,
+		selectLast = function(elements)
+			return elements:get(elements:size() - 1)
+		end,
 	}
 
 	local finalTable = {

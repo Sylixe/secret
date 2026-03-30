@@ -11,9 +11,9 @@
 	"libraries": [
 		{
 			"name": "WuxiaLib",
-			"ver": "1.0.1",
+			"ver": "1.0.4",
 			"url": null,
-			"hash": "f216e70d733f34447b39d1fd4bfa45586a79b673e91690d0b5175b81e69d3dec"
+			"hash": "de2cdf1f5400b498c47be61714bde64239a303bdebbdc73e4a54f0ca090a3574"
 		}
 	],
 	"scripts": [
@@ -23,9 +23,9 @@
 			"fileName": "WuxiaBox",
 			"imageURL": "",
 			"lang": "en",
-			"ver": "1.0.3",
+			"ver": "1.0.4",
 			"libVer": "1.0.0",
-			"md5": "5b9b0d3d2dfd3b44fa5fa94344dda35ada8da116a1da0f091c904c9ecb592dac",
+			"md5": "d04d2f36e44a48643fc487bf5b31743aaa3ca19d9108f186c6d2ba7dd99d79ae",
 			"type": "LuaScript"
 		}
 	],
