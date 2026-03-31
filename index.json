@@ -16,9 +16,9 @@
 			"fileName": "novelbin",
 			"imageURL": "https://sylixe.github.io/secret/icons/novelbin.png",
 			"lang": "en",
-			"ver": "1.0.0",
+			"ver": "1.0.1",
 			"libVer": "1.0.0",
-			"md5": "43f554e7cba4fc3f497346f318ba6d35ffacdb0fc60e77c8cf104a0077487d98",
+			"md5": "ef3fad88a628669864990b48078f040047a7f12a8829b798689d1a8071cb6ee2",
 			"type": "LuaScript"
 		},
 		{

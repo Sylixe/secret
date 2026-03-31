@@ -1,4 +1,4 @@
--- {"id":778888888,"ver":"1.0.0","libVer":"1.0.0","author":"Sylixe"}
+-- {"id":778888888,"ver":"1.0.1","libVer":"1.0.0","author":"Sylixe"}
 
 local GENRE_LIST = {
 	"Action",
@@ -340,7 +340,7 @@ local function parseNovel(novelURL, loadChapters)
 		.. novelRating
 		.. "/10 from "
 		.. novelFavoriteCount
-		.. "ratings\n"
+		.. " ratings\n\n"
 		.. novelDescription
 
 	local novelData = {
@@ -387,7 +387,9 @@ local function getPassage(chapterURL)
 	local document = GETDocument(expandURL(chapterURL))
 	local chap = selectFirst(document, ".chr-c")
 	local title = attr(selectFirst(document, ".chr-title"), "title")
+	chap:prepend("<style>div[id^='pf-'] { display: none !important; }</style>")
 	chap:prepend("<h1>" .. title .. "</h1>")
+	print(pageOfElem(chap))
 	return pageOfElem(chap, true)
 end
 
@@ -401,7 +403,7 @@ local listings = {
 	Listing("Latest Novels", true, function(filters)
 		local genreIndex = filters[GENRE_SELECT]
 		local statusIndex = filters[STATUS_SELECT]
-		local currentPage = filters[PAGE] - 1
+		local currentPage = filters[PAGE]
 
 		if genreIndex == nil then
 			if statusIndex ~= nil and statusIndex ~= 0 then
@@ -421,7 +423,7 @@ local listings = {
 	Listing("Trending Novels", true, function(filters)
 		local genreIndex = filters[GENRE_SELECT]
 		local statusIndex = filters[STATUS_SELECT]
-		local currentPage = filters[PAGE] - 1
+		local currentPage = filters[PAGE]
 
 		if genreIndex == nil then
 			if statusIndex ~= nil and statusIndex ~= 0 then
@@ -441,7 +443,7 @@ local listings = {
 	Listing("Popular Novels", true, function(filters)
 		local genreIndex = filters[GENRE_SELECT]
 		local statusIndex = filters[STATUS_SELECT]
-		local currentPage = filters[PAGE] - 1
+		local currentPage = filters[PAGE]
 
 		if genreIndex == nil then
 			if statusIndex ~= nil and statusIndex ~= 0 then
