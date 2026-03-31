@@ -188,7 +188,7 @@ local function search(filters)
 		)
 
 		local doc = RequestDocument(request)
-		local selectedURL = selectFirst(doc, ".pagination > a:nth-child(2)")
+		local selectedURL = selectFirst(doc, ".pagination > a:nth-of-type(2)")
 
 		if not selectedURL then
 			return {}
