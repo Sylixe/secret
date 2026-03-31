@@ -3,7 +3,7 @@
 		{
 			"id": -1803679568,
 			"name": "Sylixe",
-			"desc": "Worked on WuxiaBox",
+			"desc": "Worked on NovelBin, WuxiaBox",
 			"imageURL": "",
 			"website": ""
 		}
@@ -11,14 +11,25 @@
 	"libraries": [],
 	"scripts": [
 		{
+			"id": 778888888,
+			"name": "NovelBin",
+			"fileName": "novelbin",
+			"imageURL": "https://sylixe.github.io/secret/icons/novelbin.png",
+			"lang": "en",
+			"ver": "1.0.0",
+			"libVer": "1.0.0",
+			"md5": "43f554e7cba4fc3f497346f318ba6d35ffacdb0fc60e77c8cf104a0077487d98",
+			"type": "LuaScript"
+		},
+		{
 			"id": 788888888,
 			"name": "WuxiaBox",
-			"fileName": "WuxiaBox",
-			"imageURL": "",
+			"fileName": "wuxiabox",
+			"imageURL": "https://sylixe.github.io/secret/icons/wuxiabox.png",
 			"lang": "en",
-			"ver": "1.0.1",
+			"ver": "1.0.0",
 			"libVer": "1.0.0",
-			"md5": "c2374b24d19b93d1c4d0eca45facec98ace81f69b9eeeeda0ed77d69bce60ab3",
+			"md5": "55817803f1235ff1057899cefbfa28cd1c183bd252a83390e324d7044298c29b",
 			"type": "LuaScript"
 		}
 	],

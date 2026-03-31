@@ -1,4 +1,4 @@
--- {"id":788888888,"ver":"1.0.1","libVer":"1.0.0","author":"Sylixe"}
+-- {"id":788888888,"ver":"1.0.0","libVer":"1.0.0","author":"Sylixe"}
 
 local GENRE_LIST = {
 	"All",
@@ -90,8 +90,6 @@ local SEARCH_REQUEST_URL = "https://www.wuxiabox.com/e/search/index.php"
 local gsub = string.gsub
 local sub = string.sub
 local find = string.find
-local tostring = tostring
-local tonumber = tonumber
 
 local POST = POST
 local pageOfElem = pageOfElem
@@ -149,10 +147,10 @@ local function parseBrowse(novelListURL)
 		local novelChapterCount = sub(text(selectFirst(novelInfo, ".novel-stats > span")), 6, -10)
 
 		local finalNovelTitle
-		if novelChapterCount then
-			finalNovelTitle = "[" .. tostring(novelChapterCount) .. "] " .. novelTitle
+		if novelChapterCount ~= "" then
+			finalNovelTitle = "(" .. novelChapterCount .. ") " .. novelTitle
 		else
-			finalNovelTitle = "[?] " .. novelTitle
+			finalNovelTitle = "(?) " .. novelTitle
 		end
 
 		finalListArray[i + 1] = Novel({
@@ -190,7 +188,7 @@ local function search(filters)
 		)
 
 		local doc = RequestDocument(request)
-		local selectedURL = selectFirst(doc, ".pagination > a:nth-of-type(2)")
+		local selectedURL = selectFirst(doc, ".pagination > a:nth-child(2)")
 
 		if not selectedURL then
 			return {}
@@ -207,7 +205,7 @@ end
 
 -- Helper
 local function genreOrTagSelector(doc, section, finalTable)
-	local genreList = select(doc, ".categories > ul:nth-of-type(" .. tostring(section) .. ") > li > a")
+	local genreList = select(doc, ".categories > ul:nth-child(" .. section .. ") > li > a")
 	local listSize = size(genreList)
 
 	for i = 0, listSize - 1 do
@@ -239,20 +237,20 @@ local function parseNovel(novelURL, loadChapters)
 	local novelImage = expandURL(attr(selectFirst(doc, ".cover > img"), "data-src"))
 	local novelDescription =
 		sub(gsub(gsub(gsub(text(selectFirst(doc, ".content")), "<br>", "\n"), "<p>", ""), "</p>", "\n"), 1, -2)
-	local novelChapterCount = text(selectFirst(doc, ".header-stats > span:first-child > strong"))
-	local novelStatusString = text(selectFirst(doc, ".header-stats > span:nth-of-type(2) > strong"))
+	local novelChapterCount = text(selectFirst(doc, ".header-stats > span > strong"))
+	local novelStatusString = text(selectFirst(doc, ".header-stats > span:nth-child(2) > strong"))
 	local novelStatus = STATUS_PICKER[novelStatusString]
 	local novelTags = {}
 	genreOrTagSelector(doc, 2, novelTags)
 	local novelGenres = {}
 	genreOrTagSelector(doc, 1, novelGenres)
-	local novelAuthor = { text(selectFirst(doc, ".author > span:nth-of-type(2)")) }
+	local novelAuthors = { text(selectFirst(doc, ".author > span:nth-child(2)")) }
 
 	local finalNovelTitle
 	if novelStatusString == "Ongoing" then
-		finalNovelTitle = "(" .. tostring(novelChapterCount) .. ") " .. novelTitle
+		finalNovelTitle = "(" .. novelChapterCount .. ") " .. novelTitle
 	else
-		finalNovelTitle = "<" .. tostring(novelChapterCount) .. "> " .. novelTitle
+		finalNovelTitle = "[" .. novelChapterCount .. "] " .. novelTitle
 	end
 
 	local novelData = {
@@ -262,7 +260,7 @@ local function parseNovel(novelURL, loadChapters)
 		status = novelStatus,
 		tags = novelTags,
 		genres = novelGenres,
-		authors = novelAuthor,
+		authors = novelAuthors,
 	}
 
 	if loadChapters then
@@ -351,7 +349,7 @@ local finalTable = {
 	id = 788888888,
 	name = "WuxiaBox",
 	baseURL = BASE_URL,
-	imageURL = "",
+	imageURL = "https://sylixe.github.io/secret/icons/wuxiabox.png",
 
 	hasSearch = true,
 	hasCloudFlare = true,
