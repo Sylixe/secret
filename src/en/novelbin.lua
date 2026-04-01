@@ -1,4 +1,4 @@
--- {"id":778888888,"ver":"1.0.1","libVer":"1.0.0","author":"Sylixe"}
+-- {"id":778888888,"ver":"1.0.0","libVer":"1.0.0","author":"Sylixe"}
 
 local GENRE_LIST = {
 	"None",
@@ -229,10 +229,10 @@ local function search(filters)
 	end
 
 	if searchMode == 1 then
-		query = upper(query)
+		return parseBrowse(searchURL .. upper(query) .. pageURL .. page, false)
+	else
+		return parseBrowse(searchURL .. query .. pageURL .. page, true)
 	end
-
-	return parseBrowse(searchURL .. query .. pageURL .. page, true)
 end
 
 -- Novel page
@@ -361,9 +361,9 @@ local listings = {
 
 		if genreIndex == 0 then
 			if statusIndex ~= nil and statusIndex ~= 0 then
-				return parseBrowse("https://novelbin.com/sort/latest/completed?page=" .. currentPage)
+				return parseBrowse("https://novelbin.com/sort/latest/completed?page=" .. currentPage, false)
 			else
-				return parseBrowse("https://novelbin.com/sort/latest?page=" .. currentPage)
+				return parseBrowse("https://novelbin.com/sort/latest?page=" .. currentPage, false)
 			end
 		end
 
@@ -371,7 +371,8 @@ local listings = {
 			"https://novelbin.com/genre/"
 				.. GENRE_URL_LIST[genreIndex + 1]
 				.. (statusIndex == 1 and "/completed?page=" or "?page=")
-				.. currentPage
+				.. currentPage,
+			false
 		)
 	end),
 	Listing("Trending Novels", true, function(filters)
@@ -381,9 +382,9 @@ local listings = {
 
 		if genreIndex == 0 then
 			if statusIndex ~= nil and statusIndex ~= 0 then
-				return parseBrowse("https://novelbin.com/sort/top-hot-novel/completed?page=" .. currentPage)
+				return parseBrowse("https://novelbin.com/sort/top-hot-novel/completed?page=" .. currentPage, false)
 			else
-				return parseBrowse("https://novelbin.com/sort/top-hot-novel?page=" .. currentPage)
+				return parseBrowse("https://novelbin.com/sort/top-hot-novel?page=" .. currentPage, false)
 			end
 		end
 
@@ -391,7 +392,8 @@ local listings = {
 			"https://novelbin.com/genre/"
 				.. GENRE_URL_LIST[genreIndex + 1]
 				.. (statusIndex == 1 and "/completed?page=" or "?page=")
-				.. currentPage
+				.. currentPage,
+			false
 		)
 	end),
 	Listing("Popular Novels", true, function(filters)
@@ -401,9 +403,9 @@ local listings = {
 
 		if genreIndex == 0 then
 			if statusIndex ~= nil and statusIndex ~= 0 then
-				return parseBrowse("https://novelbin.com/sort/top-view-novel/completed?page=" .. currentPage)
+				return parseBrowse("https://novelbin.com/sort/top-view-novel/completed?page=" .. currentPage, false)
 			else
-				return parseBrowse("https://novelbin.com/sort/top-view-novel?page=" .. currentPage)
+				return parseBrowse("https://novelbin.com/sort/top-view-novel?page=" .. currentPage, false)
 			end
 		end
 
@@ -411,7 +413,8 @@ local listings = {
 			"https://novelbin.com/genre/"
 				.. GENRE_URL_LIST[genreIndex + 1]
 				.. (statusIndex == 1 and "/completed?page=" or "?page=")
-				.. currentPage
+				.. currentPage,
+			false
 		)
 	end),
 }
