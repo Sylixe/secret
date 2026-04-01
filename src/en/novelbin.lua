@@ -168,7 +168,7 @@ local function expandURL(smallURL)
 end
 
 -- Browse listings
-local function parseBrowse(novelListURL)
+local function parseBrowse(novelListURL, useSRC)
 	local doc = GETDocument(novelListURL)
 
 	if not select then
@@ -197,11 +197,10 @@ local function parseBrowse(novelListURL)
 
 		local novelTitle = attr(novelInfo, "title")
 		local novelChapterCount = match(attr(novelCountInfo, "title"), "%d+") or "?"
-		print(attr(imageInfo, "data-src"))
 
 		finalListArray[i + 1] = Novel({
 			title = "(" .. novelChapterCount .. ") " .. novelTitle,
-			imageURL = IMAGE_URL .. sub(attr(imageInfo, "data-src"), 42), -- Change from Low res to High res
+			imageURL = IMAGE_URL .. sub(attr(imageInfo, useSRC and "src" or "data-src"), 42), -- Change from Low res to High res
 			link = shrinkURL(attr(novelInfo, "href")),
 		})
 	end
@@ -233,7 +232,7 @@ local function search(filters)
 		query = upper(query)
 	end
 
-	return parseBrowse(searchURL .. query .. pageURL .. page)
+	return parseBrowse(searchURL .. query .. pageURL .. page, true)
 end
 
 -- Novel page
