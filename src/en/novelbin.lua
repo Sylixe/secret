@@ -210,9 +210,9 @@ end
 
 -- Search listings
 local function search(filters)
-	local searchMode = filters[SEARCH_MODE_SELECT]
-	local query = filters[QUERY]
-	local page = filters[PAGE]
+	local searchMode = tonumber(filters[SEARCH_MODE_SELECT]) or 0
+	local query = tostring(filters[QUERY])
+	local page = tonumber(filters[PAGE]) or 1
 
 	if query == "" then
 		return {}
@@ -355,9 +355,9 @@ local filterModel = {
 
 local listings = {
 	Listing("Latest Novels", true, function(filters)
-		local genreIndex = filters[GENRE_SELECT]
-		local statusIndex = filters[STATUS_SELECT]
-		local currentPage = filters[PAGE]
+		local genreIndex = tonumber(filters[GENRE_SELECT]) or 0
+		local statusIndex = tonumber(filters[STATUS_SELECT]) or 0
+		local currentPage = tonumber(filters[PAGE]) or 1
 
 		if genreIndex == 0 then
 			if statusIndex ~= nil and statusIndex ~= 0 then
@@ -375,9 +375,9 @@ local listings = {
 		)
 	end),
 	Listing("Trending Novels", true, function(filters)
-		local genreIndex = filters[GENRE_SELECT]
-		local statusIndex = filters[STATUS_SELECT]
-		local currentPage = filters[PAGE]
+		local genreIndex = tonumber(filters[GENRE_SELECT]) or 0
+		local statusIndex = tonumber(filters[STATUS_SELECT]) or 0
+		local currentPage = tonumber(filters[PAGE]) or 1
 
 		if genreIndex == 0 then
 			if statusIndex ~= nil and statusIndex ~= 0 then
@@ -395,9 +395,9 @@ local listings = {
 		)
 	end),
 	Listing("Popular Novels", true, function(filters)
-		local genreIndex = filters[GENRE_SELECT]
-		local statusIndex = filters[STATUS_SELECT]
-		local currentPage = filters[PAGE]
+		local genreIndex = tonumber(filters[GENRE_SELECT]) or 0
+		local statusIndex = tonumber(filters[STATUS_SELECT]) or 0
+		local currentPage = tonumber(filters[PAGE]) or 1
 
 		if genreIndex == 0 then
 			if statusIndex ~= nil and statusIndex ~= 0 then
