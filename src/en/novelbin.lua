@@ -135,7 +135,7 @@ local STATUS_SELECT = 3
 local SEARCH_MODE_SELECT = 4
 
 local BASE_URL = "https://novelbin.com"
-local CHAPTER_LISTINGS_URL = "https://www.wuxiabox.com/e/extend/fy.php?page="
+local IMAGE_URL = "https://images.novelbin.com/novel/"
 local SEARCH_REQUEST_URL = "https://www.wuxiabox.com/e/search/index.php"
 
 local gsub = string.gsub
@@ -184,6 +184,7 @@ local function parseBrowse(novelListURL)
 	end
 
 	local titleAndLinkDocList = select(doc, ".novel-title > a")
+	local novelChapterCountList = select(doc, ".text-info > div > a")
 	local imageDocList = select(doc, ".cover")
 
 	if not size then
@@ -196,14 +197,15 @@ local function parseBrowse(novelListURL)
 	local finalListArray = {}
 	for i = 0, listSize - 1 do
 		local novelInfo = get(titleAndLinkDocList, i)
+		local novelCountInfo = get(novelChapterCountList, i)
 		local imageInfo = get(imageDocList, i)
 
 		local novelTitle = attr(novelInfo, "title")
-		local novelChapterCount = match(attr(selectFirst(doc, ".text-info > div > a"), "title"), "%d+") or "?"
+		local novelChapterCount = match(attr(novelCountInfo, "title"), "%d+") or "?"
 
 		finalListArray[i + 1] = Novel({
 			title = "(" .. novelChapterCount .. ") " .. novelTitle,
-			imageURL = attr(imageInfo, "data-src"),
+			imageURL = IMAGE_URL .. sub(attr(imageInfo, "data-src"), 42), -- Change from Low res to High res
 			link = shrinkURL(attr(novelInfo, "href")),
 		})
 	end
@@ -359,7 +361,6 @@ local function parseNovel(novelURL, loadChapters)
 
 	if loadChapters then
 		local listingDoc = GETDocument("https://novelbin.com/ajax/chapter-archive?novelId=" .. sub(novelURL, 4))
-		print("https://novelbin.com/ajax/chapter-archive?novelId=" .. sub(novelURL, 4))
 		local chapterDocList = select(listingDoc, ".list-chapter > li > a")
 		local listSize = size(chapterDocList)
 
@@ -384,13 +385,18 @@ end
 
 -- Reader page
 local function getPassage(chapterURL)
-	local document = GETDocument(expandURL(chapterURL))
-	local chap = selectFirst(document, ".chr-c")
-	local title = attr(selectFirst(document, ".chr-title"), "title")
+	local doc = GETDocument(expandURL(chapterURL))
+
+	if not selectFirst then
+		select = doc.select
+		selectFirst = doc.selectFirst
+	end
+
+	local chap = selectFirst(doc, ".chr-c")
+	local title = attr(selectFirst(doc, ".chr-title"), "title")
 	chap:prepend("<style>div { display: none !important; }</style>")
 	chap:prepend("<h1>" .. title .. "</h1>")
-	print(pageOfElem(chap))
-	return pageOfElem(chap, true)
+	return pageOfElem(chap)
 end
 
 local filterModel = {
