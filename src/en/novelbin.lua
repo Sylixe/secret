@@ -338,13 +338,17 @@ local function getPassage(chapterURL)
 	if not selectFirst then
 		select = doc.select
 		selectFirst = doc.selectFirst
+		attr = doc.attr
+		text = doc.text
 	end
 
 	local chap = selectFirst(doc, ".chr-c")
-	local title = attr(selectFirst(doc, ".chr-title"), "title")
+	local title = text(selectFirst(chap, "h4"))
 	select(chap, "div"):remove()
 	chap:child(0):remove()
 	chap:prepend("<h1>" .. title .. "</h1>")
+
+	print(pageOfElem(chap, true))
 
 	return pageOfElem(chap, true)
 end
