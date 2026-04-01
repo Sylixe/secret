@@ -187,7 +187,7 @@ local function parseBrowse(novelListURL, useSRC)
 		get = titleAndLinkDocList.get
 	end
 
-	local listSize = titleAndLinkDocList:size()
+	local listSize = size(titleAndLinkDocList)
 
 	local finalListArray = {}
 	for i = 0, listSize - 1 do
