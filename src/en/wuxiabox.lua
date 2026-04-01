@@ -299,9 +299,15 @@ end
 
 -- Reader page
 local function getPassage(chapterURL)
-	local document = GETDocument(expandURL(chapterURL))
-	local chap = selectFirst(document, ".chapter-content")
-	local title = text(selectFirst(document, ".chapter-header h2"))
+	local doc = GETDocument(expandURL(chapterURL))
+
+	if not selectFirst then
+		select = doc.select
+		selectFirst = doc.selectFirst
+	end
+
+	local chap = selectFirst(doc, ".chapter-content")
+	local title = text(selectFirst(doc, ".chapter-header h2"))
 	chap:prepend("<h1>" .. title .. "</h1>")
 	return pageOfElem(chap, true)
 end
