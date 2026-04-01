@@ -394,9 +394,11 @@ local function getPassage(chapterURL)
 
 	local chap = selectFirst(doc, ".chr-c")
 	local title = attr(selectFirst(doc, ".chr-title"), "title")
-	chap:prepend("<style>div[id^='pf-'] { display: none !important; }</style>")
+	doc:select("script"):remove()
+	doc:select("div[id^='pf-']"):remove()
 	chap:prepend("<h1>" .. title .. "</h1>")
-	return pageOfElem(chap)
+	print(pageOfElem(chap, true))
+	return pageOfElem(chap, true)
 end
 
 local filterModel = {
