@@ -197,6 +197,7 @@ local function parseBrowse(novelListURL)
 
 		local novelTitle = attr(novelInfo, "title")
 		local novelChapterCount = match(attr(novelCountInfo, "title"), "%d+") or "?"
+		print(attr(imageInfo, "data-src"))
 
 		finalListArray[i + 1] = Novel({
 			title = "(" .. novelChapterCount .. ") " .. novelTitle,
@@ -374,46 +375,46 @@ local listings = {
 				.. currentPage
 		)
 	end),
-	Listing("Trending Novels", true, function(filters)
-		local genreIndex = filters[GENRE_SELECT]
-		local statusIndex = filters[STATUS_SELECT]
-		local currentPage = filters[PAGE]
+	-- Listing("Trending Novels", true, function(filters)
+	-- 	local genreIndex = filters[GENRE_SELECT]
+	-- 	local statusIndex = filters[STATUS_SELECT]
+	-- 	local currentPage = filters[PAGE]
 
-		if genreIndex == 0 then
-			if statusIndex ~= nil and statusIndex ~= 0 then
-				return parseBrowse("https://novelbin.com/sort/top-hot-novel/completed?page=" .. currentPage)
-			else
-				return parseBrowse("https://novelbin.com/sort/top-hot-novel?page=" .. currentPage)
-			end
-		end
+	-- 	if genreIndex == 0 then
+	-- 		if statusIndex ~= nil and statusIndex ~= 0 then
+	-- 			return parseBrowse("https://novelbin.com/sort/top-hot-novel/completed?page=" .. currentPage)
+	-- 		else
+	-- 			return parseBrowse("https://novelbin.com/sort/top-hot-novel?page=" .. currentPage)
+	-- 		end
+	-- 	end
 
-		return parseBrowse(
-			"https://novelbin.com/genre/"
-				.. GENRE_URL_LIST[genreIndex + 1]
-				.. (statusIndex == 1 and "/completed?page=" or "?page=")
-				.. currentPage
-		)
-	end),
-	Listing("Popular Novels", true, function(filters)
-		local genreIndex = filters[GENRE_SELECT]
-		local statusIndex = filters[STATUS_SELECT]
-		local currentPage = filters[PAGE]
+	-- 	return parseBrowse(
+	-- 		"https://novelbin.com/genre/"
+	-- 			.. GENRE_URL_LIST[genreIndex + 1]
+	-- 			.. (statusIndex == 1 and "/completed?page=" or "?page=")
+	-- 			.. currentPage
+	-- 	)
+	-- end),
+	-- Listing("Popular Novels", true, function(filters)
+	-- 	local genreIndex = filters[GENRE_SELECT]
+	-- 	local statusIndex = filters[STATUS_SELECT]
+	-- 	local currentPage = filters[PAGE]
 
-		if genreIndex == 0 then
-			if statusIndex ~= nil and statusIndex ~= 0 then
-				return parseBrowse("https://novelbin.com/sort/top-view-novel/completed?page=" .. currentPage)
-			else
-				return parseBrowse("https://novelbin.com/sort/top-view-novel?page=" .. currentPage)
-			end
-		end
+	-- 	if genreIndex == 0 then
+	-- 		if statusIndex ~= nil and statusIndex ~= 0 then
+	-- 			return parseBrowse("https://novelbin.com/sort/top-view-novel/completed?page=" .. currentPage)
+	-- 		else
+	-- 			return parseBrowse("https://novelbin.com/sort/top-view-novel?page=" .. currentPage)
+	-- 		end
+	-- 	end
 
-		return parseBrowse(
-			"https://novelbin.com/genre/"
-				.. GENRE_URL_LIST[genreIndex + 1]
-				.. (statusIndex == 1 and "/completed?page=" or "?page=")
-				.. currentPage
-		)
-	end),
+	-- 	return parseBrowse(
+	-- 		"https://novelbin.com/genre/"
+	-- 			.. GENRE_URL_LIST[genreIndex + 1]
+	-- 			.. (statusIndex == 1 and "/completed?page=" or "?page=")
+	-- 			.. currentPage
+	-- 	)
+	-- end),
 }
 
 local finalTable = {
