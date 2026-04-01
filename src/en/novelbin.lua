@@ -342,8 +342,10 @@ local function getPassage(chapterURL)
 
 	local chap = selectFirst(doc, ".chr-c")
 	local title = attr(selectFirst(doc, ".chr-title"), "title")
-	select(doc, "div"):remove()
+	select(chap, "div"):remove()
+	chap:child(0):remove()
 	chap:prepend("<h1>" .. title .. "</h1>")
+
 	return pageOfElem(chap, true)
 end
 
