@@ -3,7 +3,7 @@
 		{
 			"id": -1803679568,
 			"name": "Sylixe",
-			"desc": "Worked on NovelBin, NovelBuddy, WuxiaBox",
+			"desc": "Worked on NovelBin, WuxiaBox",
 			"imageURL": "",
 			"website": ""
 		}
@@ -19,17 +19,6 @@
 			"ver": "1.0.0",
 			"libVer": "1.0.0",
 			"md5": "4c37a557a48d1a88486300d33fa75387a93bf6024da9198130b23c937ba07a47",
-			"type": "LuaScript"
-		},
-		{
-			"id": 778888888,
-			"name": "NovelBuddy",
-			"fileName": "novelbuddy",
-			"imageURL": "https://sylixe.github.io/secret/icons/novelbuddy.png",
-			"lang": "en",
-			"ver": "1.0.0",
-			"libVer": "1.0.0",
-			"md5": "201eb4f4ed72a51cb023bf3f4b5001ab8bb3a0150eb55b3c3074b2607d0a9b35",
 			"type": "LuaScript"
 		},
 		{
