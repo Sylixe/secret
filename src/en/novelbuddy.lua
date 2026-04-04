@@ -57,63 +57,6 @@ local GENRE_LIST = {
 	"Yuri",
 }
 
-local GENRE_URL_LIST = {
-	"none",
-	"action",
-	"adult",
-	"adventure",
-	"anime-&-comics",
-	"comedy",
-	"drama",
-	"eastern",
-	"ecchi",
-	"fan-fiction",
-	"fantasy",
-	"game",
-	"gender-bender",
-	"harem",
-	"historical",
-	"horror",
-	"isekai",
-	"josei",
-	"lgbt+",
-	"litrpg",
-	"magic",
-	"magical-realism",
-	"martial-arts",
-	"mature",
-	"mecha",
-	"military",
-	"modern-life",
-	"mystery",
-	"other",
-	"psychological",
-	"reincarnation",
-	"romance",
-	"school-life",
-	"sci-fi",
-	"seinen",
-	"shoujo",
-	"shoujo-ai",
-	"shounen",
-	"shounen-ai",
-	"slice-of-life",
-	"smut",
-	"sports",
-	"supernatural",
-	"system",
-	"thriller",
-	"tragedy",
-	"urban",
-	"video-games",
-	"war",
-	"wuxia",
-	"xianxia",
-	"xuanhuan",
-	"yaoi",
-	"yuri",
-}
-
 local STATUS_LIST = {
 	"All",
 	"Completed",
@@ -343,14 +286,12 @@ local function getPassage(chapterURL)
 	end
 
 	local chap = selectFirst(doc, ".chr-c")
-	local title = text(selectFirst(doc, ".chr-text"))
-	local hasExtraTitle = selectFirst(chap, "h4")
-	if hasExtraTitle then
-		chap:child(0):remove()
-	end
-
+	local title = text(selectFirst(chap, "h4"))
 	select(chap, "div"):remove()
+	chap:child(0):remove()
 	chap:prepend("<h1>" .. title .. "</h1>")
+
+	print(pageOfElem(chap, true))
 
 	return pageOfElem(chap, true)
 end
@@ -428,10 +369,10 @@ local listings = {
 }
 
 local finalTable = {
-	id = 778888888,
-	name = "NovelBin",
+	id = 777888888,
+	name = "NovelBuddy",
 	baseURL = BASE_URL,
-	imageURL = "https://sylixe.github.io/secret/icons/novelbin.png",
+	imageURL = "https://sylixe.github.io/secret/icons/novelbuddy.png",
 
 	hasSearch = true,
 	hasCloudFlare = true,
