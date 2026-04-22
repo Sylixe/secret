@@ -102,15 +102,6 @@ local Novel = Novel
 local NovelInfo = NovelInfo
 local NovelChapter = NovelChapter
 
-local select, selectFirst, attr, text
-local size, get
-local fBuild, fAdd
-do
-	local temp = FormBodyBuilder()
-	fBuild = temp.build
-	fAdd = temp.add
-end
-
 local function shrinkURL(longURL)
 	return sub(longURL, 21)
 end
@@ -123,28 +114,15 @@ end
 local function parseBrowse(novelListURL)
 	local doc = GETDocument(novelListURL)
 
-	if not select then
-		selectFirst = doc.selectFirst
-		select = doc.select
-		attr = doc.attr
-		text = doc.text
-	end
-
-	local novelList = select(doc, ".novel-item > a")
-
-	if not size then
-		size = novelList.size
-		get = novelList.get
-	end
-
-	local listSize = size(novelList)
+	local novelList = doc:select(".novel-item > a")
+	local listSize = novelList:size()
 
 	local finalListArray = {}
 	for i = 0, listSize - 1 do
-		local novelInfo = get(novelList, i)
+		local novelInfo = novelList:get(i)
 
-		local novelTitle = attr(novelInfo, "title")
-		local novelChapterCount = sub(text(selectFirst(novelInfo, ".novel-stats > span")), 6, -10)
+		local novelTitle = novelInfo:attr("title")
+		local novelChapterCount = sub(novelInfo:selectFirst(".novel-stats > span"):text(), 6, -10)
 
 		local finalNovelTitle
 		if novelChapterCount ~= "" then
@@ -155,8 +133,8 @@ local function parseBrowse(novelListURL)
 
 		finalListArray[i + 1] = Novel({
 			title = finalNovelTitle,
-			imageURL = expandURL(attr(selectFirst(novelInfo, ".cover-wrap > figure > img"), "data-src")),
-			link = attr(novelInfo, "href"),
+			imageURL = expandURL(novelInfo:selectFirst(".cover-wrap > figure > img"):attr("data-src")),
+			link = novelInfo:attr("href"),
 		})
 	end
 
@@ -178,23 +156,23 @@ local function search(filters)
 		local request = POST(
 			SEARCH_REQUEST_URL,
 			nil,
-			fBuild(
-				fAdd(
-					fAdd(fAdd(fAdd(FormBodyBuilder(), "show", "title"), "tempid", "1"), "tbname", "news"),
-					"keyboard",
-					query
-				)
-			)
+			FormBodyBuilder()
+				:add("show", "title")
+				:add("tempid", "1")
+				:add("tbname", "news")
+				:add("keyboard", query)
+				:build()
 		)
 
 		local doc = RequestDocument(request)
-		local selectedURL = selectFirst(doc, ".pagination > a:nth-of-type(2)")
+
+		local selectedURL = doc:selectFirst(".pagination > a:nth-of-type(2)")
 
 		if not selectedURL then
 			return {}
 		end
 
-		local searchLink = attr(selectedURL, "href")
+		local searchLink = selectedURL:attr("href")
 
 		searchId = sub(searchLink, 44)
 		searchMap[query] = searchId
@@ -205,27 +183,29 @@ end
 
 -- Helper
 local function genreOrTagSelector(doc, section, finalTable)
-	local genreList = select(doc, ".categories > ul:nth-child(" .. section .. ") > li > a")
-	local listSize = size(genreList)
+	local genreList = doc:select(".categories > ul:nth-child(" .. section .. ") > li > a")
+	local listSize = genreList:size()
 
 	for i = 0, listSize - 1 do
-		finalTable[i + 1] = text(get(genreList, i))
+		finalTable[i + 1] = genreList:get(i):text()
 	end
 end
 
 -- Helper 2
 local function extractChapters(doc, array, count)
-	local list = select(doc, ".chapter-list > li > a")
-	local listSize = size(list)
+	local list = doc:select(".chapter-list > li > a")
+	local listSize = list:size()
+
 	for j = 0, listSize - 1 do
 		count = count + 1
-		local chapter = get(list, j)
+		local chapter = list:get(j)
 		array[count] = NovelChapter({
 			order = count,
-			title = text(selectFirst(chapter, ".chapter-title")),
-			link = attr(chapter, "href"),
+			title = chapter:selectFirst(".chapter-title"):text(),
+			link = chapter:attr("href"),
 		})
 	end
+
 	return count
 end
 
@@ -233,18 +213,18 @@ end
 local function parseNovel(novelURL, loadChapters)
 	local doc = GETDocument(expandURL(novelURL))
 
-	local novelTitle = text(selectFirst(doc, ".novel-title"))
-	local novelImage = expandURL(attr(selectFirst(doc, ".cover > img"), "data-src"))
+	local novelTitle = doc:selectFirst(".novel-title"):text()
+	local novelImage = expandURL(doc:selectFirst(".cover > img"):attr("data-src"))
 	local novelDescription =
-		sub(gsub(gsub(gsub(text(selectFirst(doc, ".content")), "<br>", "\n"), "<p>", ""), "</p>", "\n"), 1, -2)
-	local novelChapterCount = text(selectFirst(doc, ".header-stats > span > strong"))
-	local novelStatusString = text(selectFirst(doc, ".header-stats > span:nth-child(2) > strong"))
+		sub(gsub(gsub(gsub(doc:selectFirst(".content"):text(), "<br>", "\n"), "<p>", ""), "</p>", "\n"), 1, -2)
+	local novelChapterCount = doc:selectFirst(".header-stats > span > strong"):text()
+	local novelStatusString = doc:selectFirst(".header-stats > span:nth-child(2) > strong"):text()
 	local novelStatus = STATUS_PICKER[novelStatusString]
 	local novelTags = {}
 	genreOrTagSelector(doc, 2, novelTags)
 	local novelGenres = {}
 	genreOrTagSelector(doc, 1, novelGenres)
-	local novelAuthors = { text(selectFirst(doc, ".author > span:nth-child(2)")) }
+	local novelAuthors = { doc:selectFirst(".author > span:nth-child(2)"):text() }
 
 	local finalNovelTitle
 	if novelStatusString == "Ongoing" then
@@ -264,7 +244,7 @@ local function parseNovel(novelURL, loadChapters)
 	}
 
 	if loadChapters then
-		local lastChapterSelector = selectFirst(doc, ".pagination > li:last-child > a")
+		local lastChapterSelector = doc:selectFirst(".pagination > li:last-child > a")
 		if not lastChapterSelector then
 			local chapterArray = {}
 			local chapterCount = 0
@@ -274,7 +254,7 @@ local function parseNovel(novelURL, loadChapters)
 
 			novelData.chapters = chapterArray
 		else
-			local lastChapterURL = attr(lastChapterSelector, "href")
+			local lastChapterURL = lastChapterSelector:attr("href")
 			local novelID, lastPageNumer
 			do
 				local ampersandLocation = find(lastChapterURL, "&", 23, true)
@@ -301,13 +281,8 @@ end
 local function getPassage(chapterURL)
 	local doc = GETDocument(expandURL(chapterURL))
 
-	if not selectFirst then
-		select = doc.select
-		selectFirst = doc.selectFirst
-	end
-
-	local chap = selectFirst(doc, ".chapter-content")
-	local title = text(selectFirst(doc, ".chapter-header h2"))
+	local chap = doc:selectFirst(".chapter-content")
+	local title = doc:selectFirst(".chapter-header h2"):text()
 	chap:prepend("<h1>" .. title .. "</h1>")
 	return pageOfElem(chap, true)
 end

@@ -18,7 +18,7 @@
 			"lang": "en",
 			"ver": "1.0.0",
 			"libVer": "1.0.0",
-			"md5": "4c37a557a48d1a88486300d33fa75387a93bf6024da9198130b23c937ba07a47",
+			"md5": "7fe00b21510d5deaa5a11fda2d01b1595d7a10613cc1e75a0aa2115ac8868644",
 			"type": "LuaScript"
 		},
 		{
@@ -29,7 +29,7 @@
 			"lang": "en",
 			"ver": "1.0.0",
 			"libVer": "1.0.0",
-			"md5": "879055086c964057f086017ebdab789a81be2a18534426c81c385c628cc77a20",
+			"md5": "aed6c9661572def136e862e093a2d4c376663648e5027029b02c44321de0d33e",
 			"type": "LuaScript"
 		}
 	],

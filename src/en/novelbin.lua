@@ -156,9 +156,6 @@ local Novel = Novel
 local NovelInfo = NovelInfo
 local NovelChapter = NovelChapter
 
-local select, selectFirst, attr, text
-local size, get
-
 local function shrinkURL(longURL)
 	return sub(longURL, 21)
 end
@@ -171,37 +168,25 @@ end
 local function parseBrowse(novelListURL, useSRC)
 	local doc = GETDocument(novelListURL)
 
-	if not select then
-		selectFirst = doc.selectFirst
-		select = doc.select
-		attr = doc.attr
-		text = doc.text
-	end
+	local titleAndLinkDocList = doc:select(".novel-title > a")
+	local novelChapterCountList = doc:select(".text-info > div > a")
+	local imageDocList = doc:select(".cover")
 
-	local titleAndLinkDocList = select(doc, ".novel-title > a")
-	local novelChapterCountList = select(doc, ".text-info > div > a")
-	local imageDocList = select(doc, ".cover")
-
-	if not size then
-		size = titleAndLinkDocList.size
-		get = titleAndLinkDocList.get
-	end
-
-	local listSize = size(titleAndLinkDocList)
+	local listSize = titleAndLinkDocList:size()
 
 	local finalListArray = {}
 	for i = 0, listSize - 1 do
-		local novelInfo = get(titleAndLinkDocList, i)
-		local novelCountInfo = get(novelChapterCountList, i)
-		local imageInfo = get(imageDocList, i)
+		local novelInfo = titleAndLinkDocList:get(i)
+		local novelCountInfo = novelChapterCountList:get(i)
+		local imageInfo = imageDocList:get(i)
 
-		local novelTitle = attr(novelInfo, "title")
-		local novelChapterCount = match(attr(novelCountInfo, "title"), "%d+") or "?"
+		local novelTitle = novelInfo:attr("title")
+		local novelChapterCount = match(novelCountInfo:attr("title"), "%d+") or "?"
 
 		finalListArray[i + 1] = Novel({
 			title = "(" .. novelChapterCount .. ") " .. novelTitle,
-			imageURL = IMAGE_URL .. sub(attr(imageInfo, useSRC and "src" or "data-src"), 42), -- Change from Low res to High res
-			link = shrinkURL(attr(novelInfo, "href")),
+			imageURL = IMAGE_URL .. sub(imageInfo:attr(useSRC and "src" or "data-src"), 42),
+			link = shrinkURL(novelInfo:attr("href")),
 		})
 	end
 
@@ -239,49 +224,49 @@ end
 local function parseNovel(novelURL, loadChapters)
 	local doc = GETDocument(expandURL(novelURL))
 
-	local novelTitle = text(selectFirst(doc, ".title"))
-	local novelImage = attr(selectFirst(doc, ".lazy"), "data-src")
+	local novelTitle = doc:selectFirst(".title"):text()
+	local novelImage = doc:selectFirst(".lazy"):attr("data-src")
 	local novelDescription =
-		sub(gsub(gsub(gsub(text(selectFirst(doc, ".desc-text")), "<br>", "\n"), "<p>", ""), "</p>", "\n"), 1, -2)
-	local novelChapterCount = match(attr(selectFirst(doc, ".chapter-title"), "title"), "%d+") or "?"
-	local novelStatusString = text(selectFirst(doc, ".text-primary"))
+		sub(gsub(gsub(gsub(doc:selectFirst(".desc-text"):text(), "<br>", "\n"), "<p>", ""), "</p>", "\n"), 1, -2)
+	local novelChapterCount = match(doc:selectFirst(".chapter-title"):attr("title"), "%d+") or "?"
+	local novelStatusString = doc:selectFirst(".text-primary"):text()
 	local novelStatus = STATUS_PICKER[novelStatusString]
 	local novelGenres = {}
 	local novelTags = {}
 	do
-		local tagDocList = select(doc, ".tag-container > a")
-		local listSize = size(tagDocList)
+		local tagDocList = doc:select(".tag-container > a")
+		local listSize = tagDocList:size()
 
 		for i = 0, listSize - 1 do
-			novelGenres[i + 1] = text(get(tagDocList, i))
+			novelGenres[i + 1] = tagDocList:get(i):text()
 		end
 	end
 
-	local novelDescList = select(doc, ".info-meta > li")
-	local descListSize = size(novelDescList)
+	local novelDescList = doc:select(".info-meta > li")
+	local descListSize = novelDescList:size()
 
 	local novelAuthors
 	for i = 0, descListSize - 1 do
-		local decsDoc = get(novelDescList, i)
-		local descTitle = selectFirst(decsDoc, "h3")
+		local decsDoc = novelDescList:get(i)
+		local descTitle = decsDoc:selectFirst("h3")
 
 		if descTitle then
-			local descTitleText = text(descTitle)
+			local descTitleText = descTitle:text()
 			if descTitleText == "Author:" then
-				novelAuthors = { text(selectFirst(decsDoc, "a")) }
+				novelAuthors = { decsDoc:selectFirst("a"):text() }
 			elseif descTitleText == "Genre:" then
-				local genreDocList = select(decsDoc, "a")
-				local listSize = size(genreDocList)
+				local genreDocList = decsDoc:select("a")
+				local listSize = genreDocList:size()
 
 				for j = 0, listSize - 1 do
-					novelGenres[j + 1] = text(get(genreDocList, j))
+					novelGenres[j + 1] = genreDocList:get(j):text()
 				end
 			end
 		end
 	end
 
-	local novelFavoriteCount = tonumber(text(selectFirst(doc, ".small > em > strong:last-child > span")))
-	local novelRating = text(selectFirst(doc, ".small > em > strong > span"))
+	local novelFavoriteCount = tonumber(doc:selectFirst(".small > em > strong:last-child > span"):text())
+	local novelRating = doc:selectFirst(".small > em > strong > span"):text()
 
 	local finalNovelTitle
 	if novelStatusString == "Ongoing" then
@@ -309,14 +294,14 @@ local function parseNovel(novelURL, loadChapters)
 
 	if loadChapters then
 		local listingDoc = GETDocument("https://novelbin.com/ajax/chapter-archive?novelId=" .. sub(novelURL, 4))
-		local chapterDocList = select(listingDoc, ".list-chapter > li > a")
-		local listSize = size(chapterDocList)
+		local chapterDocList = listingDoc:select(".list-chapter > li > a")
+		local listSize = chapterDocList:size()
 
 		local chapterArray = {}
 		for i = 0, listSize - 1 do
-			local chapter = get(chapterDocList, i)
-			local chapterLink = shrinkURL(attr(chapter, "href"))
-			local chapterTitle = text(selectFirst(chapter, "span"))
+			local chapter = chapterDocList:get(i)
+			local chapterLink = shrinkURL(chapter:attr("href"))
+			local chapterTitle = chapter:selectFirst("span"):text()
 
 			chapterArray[i + 1] = NovelChapter({
 				order = i + 1,
@@ -335,21 +320,14 @@ end
 local function getPassage(chapterURL)
 	local doc = GETDocument(expandURL(chapterURL))
 
-	if not selectFirst then
-		select = doc.select
-		selectFirst = doc.selectFirst
-		attr = doc.attr
-		text = doc.text
-	end
-
-	local chap = selectFirst(doc, ".chr-c")
-	local title = text(selectFirst(doc, ".chr-text"))
-	local hasExtraTitle = selectFirst(chap, "h4")
-	if hasExtraTitle then
+	local chap = doc:selectFirst(".chr-c")
+	local title = doc:selectFirst(".chr-text"):text()
+	local hasExtraTitle = chap:selectFirst("h4")
+	if hasExtraTitle ~= nil then
 		chap:child(0):remove()
 	end
 
-	select(chap, "div"):remove()
+	chap:select("div"):remove()
 	chap:prepend("<h1>" .. title .. "</h1>")
 
 	return pageOfElem(chap, true)
