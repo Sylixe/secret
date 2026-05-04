@@ -116,7 +116,7 @@ local function parseBrowse(novelListURL)
 	end
 
 	local titleAndLinkDocList = doc:select(".tit > a:not(.con)")
-	local novelChapterCountDocList = doc:select(".chapter > .s1")
+	local novelChapterCountDocList = doc:select(".right > a > span")
 	local imageDocList = doc:select(".pic > a > img")
 
 	local listSize = titleAndLinkDocList:size()
@@ -258,6 +258,7 @@ local listings = {
 		local genreIndex = tonumber(filters[GENRE_SELECT]) or 0
 		local currentPage = tonumber(filters[PAGE]) or 1
 
+		listingIndex = 1
 		if genreIndex == 0 then
 			if listingIndex == 0 then
 				return parseBrowse("https://freewebnovel.com/sort/latest-novel/" .. currentPage)
