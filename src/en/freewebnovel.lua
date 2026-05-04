@@ -162,7 +162,7 @@ local function parseNovel(novelURL, loadChapters)
 	local doc = GETDocument(expandURL(novelURL))
 
 	local novelTitle = doc:selectFirst(".m-desc > .tit"):text()
-	local novelImage = expandURL(doc:selectFirst(".m-imgtxt > .pic"):attr("src"))
+	local novelImage = expandURL(doc:selectFirst(".m-imgtxt > div > img"):attr("src"))
 	local novelDescription =
 		sub(gsub(gsub(gsub(doc:selectFirst(".txt > .inner"):text(), "<br>", "\n"), "<p>", ""), "</p>", "\n"), 1, -2)
 	local novelStatusString = doc:selectFirst(".right > .s2 > a"):text()
