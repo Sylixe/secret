@@ -217,7 +217,6 @@ local function parseNovel(novelURL, loadChapters)
 	local novelImage = expandURL(doc:selectFirst(".cover > img"):attr("data-src"))
 	local novelDescription =
 		sub(gsub(gsub(gsub(doc:selectFirst(".content"):text(), "<br>", "\n"), "<p>", ""), "</p>", "\n"), 1, -2)
-	local novelChapterCount = doc:selectFirst(".header-stats > span > strong"):text()
 	local novelStatusString = doc:selectFirst(".header-stats > span:nth-child(2) > strong"):text()
 	local novelStatus = STATUS_PICKER[novelStatusString]
 	local novelTags = {}
@@ -226,15 +225,7 @@ local function parseNovel(novelURL, loadChapters)
 	genreOrTagSelector(doc, 1, novelGenres)
 	local novelAuthors = { doc:selectFirst(".author > span:nth-child(2)"):text() }
 
-	local finalNovelTitle
-	if novelStatusString == "Ongoing" then
-		finalNovelTitle = "(" .. novelChapterCount .. ") " .. novelTitle
-	else
-		finalNovelTitle = "[" .. novelChapterCount .. "] " .. novelTitle
-	end
-
 	local novelData = {
-		title = finalNovelTitle,
 		imageURL = novelImage,
 		description = novelDescription,
 		status = novelStatus,
@@ -243,6 +234,7 @@ local function parseNovel(novelURL, loadChapters)
 		authors = novelAuthors,
 	}
 
+	local novelChapterCount = "?"
 	if loadChapters then
 		local lastChapterSelector = doc:selectFirst(".pagination > li:last-child > a")
 		if not lastChapterSelector then
@@ -252,6 +244,7 @@ local function parseNovel(novelURL, loadChapters)
 			local listingDoc = GETDocument(CHAPTER_LISTINGS_URL .. "0&wjm=" .. sub(novelURL, 8, -6))
 			extractChapters(listingDoc, chapterArray, chapterCount)
 
+			novelChapterCount = #chapterArray
 			novelData.chapters = chapterArray
 		else
 			local lastChapterURL = lastChapterSelector:attr("href")
@@ -270,9 +263,19 @@ local function parseNovel(novelURL, loadChapters)
 				chapterCount = extractChapters(listingDoc, chapterArray, chapterCount)
 			end
 
+			novelChapterCount = #chapterArray
 			novelData.chapters = chapterArray
 		end
 	end
+
+	local finalNovelTitle
+	if novelStatusString == "Ongoing" then
+		finalNovelTitle = "(" .. novelChapterCount .. ") " .. novelTitle
+	else
+		finalNovelTitle = "[" .. novelChapterCount .. "] " .. novelTitle
+	end
+
+	novelData.title = finalNovelTitle
 
 	return NovelInfo(novelData)
 end

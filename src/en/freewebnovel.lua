@@ -1,4 +1,11 @@
--- {"id":778888888,"ver":"1.0.0","libVer":"1.0.0","author":"Sylixe"}
+-- {"id":777888888,"ver":"1.0.0","libVer":"1.0.0","author":"Sylixe"}
+
+local LISTING_LIST = {
+	"Newest",
+	"Latest",
+	"Popular",
+	"Completed",
+}
 
 local GENRE_LIST = {
 	"None",
@@ -57,74 +64,6 @@ local GENRE_LIST = {
 	"Yuri",
 }
 
-local GENRE_URL_LIST = {
-	"none",
-	"action",
-	"adult",
-	"adventure",
-	"anime-&-comics",
-	"comedy",
-	"drama",
-	"eastern",
-	"ecchi",
-	"fan-fiction",
-	"fantasy",
-	"game",
-	"gender-bender",
-	"harem",
-	"historical",
-	"horror",
-	"isekai",
-	"josei",
-	"lgbt+",
-	"litrpg",
-	"magic",
-	"magical-realism",
-	"martial-arts",
-	"mature",
-	"mecha",
-	"military",
-	"modern-life",
-	"mystery",
-	"other",
-	"psychological",
-	"reincarnation",
-	"romance",
-	"school-life",
-	"sci-fi",
-	"seinen",
-	"shoujo",
-	"shoujo-ai",
-	"shounen",
-	"shounen-ai",
-	"slice-of-life",
-	"smut",
-	"sports",
-	"supernatural",
-	"system",
-	"thriller",
-	"tragedy",
-	"urban",
-	"video-games",
-	"war",
-	"wuxia",
-	"xianxia",
-	"xuanhuan",
-	"yaoi",
-	"yuri",
-}
-
-local STATUS_LIST = {
-	"All",
-	"Completed",
-}
-
-local SEARCH_MODE_LIST = {
-	"Title",
-	"Tag",
-	"Author",
-}
-
 local STATUS_PICKER = {
 	Ongoing = NovelStatus.PUBLISHING,
 	Completed = NovelStatus.COMPLETED,
@@ -132,11 +71,10 @@ local STATUS_PICKER = {
 
 local QUERY = 0
 local PAGE = 1
-local GENRE_SELECT = 2
-local STATUS_SELECT = 3
-local SEARCH_MODE_SELECT = 4
+local LISTING_SELECT = 2
+local GENRE_SELECT = 3
 
-local BASE_URL = "https://novelbin.com"
+local BASE_URL = "https://freewebnovel.com"
 local IMAGE_URL = "https://images.novelbin.com/novel/"
 local TITLE_SEARCH_URL = "https://novelbin.com/search?keyword="
 local AUTHOR_SEARCH_URL = "https://novelbin.com/a/"
@@ -165,28 +103,27 @@ local function expandURL(smallURL)
 end
 
 -- Browse listings
-local function parseBrowse(novelListURL, useSRC)
+local function parseBrowse(novelListURL)
 	local doc = GETDocument(novelListURL)
 
-	local titleAndLinkDocList = doc:select(".novel-title > a")
-	local novelChapterCountList = doc:select(".text-info > div > a")
-	local imageDocList = doc:select(".cover")
+	local titleAndLinkDocList = doc:select(".tit > a:not(.con)")
+	local novelChapterCountDocList = doc:select(".chapter > .s1")
+	local imageDocList = doc:select(".pic > a > img")
 
 	local listSize = titleAndLinkDocList:size()
 
 	local finalListArray = {}
 	for i = 0, listSize - 1 do
-		local novelInfo = titleAndLinkDocList:get(i)
-		local novelCountInfo = novelChapterCountList:get(i)
-		local imageInfo = imageDocList:get(i)
+		local titleDoc = titleAndLinkDocList:get(i)
+		local chapterCountDoc = novelChapterCountDocList:get(i)
+		local imageDoc = imageDocList:get(i)
 
-		local novelTitle = novelInfo:attr("title")
-		local novelChapterCount = match(novelCountInfo:attr("title"), "%d+") or "?"
+		local novelChapterCount = match(chapterCountDoc:text(), "%d+") or "?"
 
 		finalListArray[i + 1] = Novel({
-			title = "(" .. novelChapterCount .. ") " .. novelTitle,
-			imageURL = IMAGE_URL .. sub(imageInfo:attr(useSRC and "src" or "data-src"), 42),
-			link = shrinkURL(novelInfo:attr("href")),
+			title = "(" .. novelChapterCount .. ") " .. titleDoc:attr("title"),
+			imageURL = expandURL(imageDoc:attr("data-src")),
+			link = titleDoc:attr("href"),
 		})
 	end
 
@@ -228,6 +165,7 @@ local function parseNovel(novelURL, loadChapters)
 	local novelImage = doc:selectFirst(".lazy"):attr("data-src")
 	local novelDescription =
 		sub(gsub(gsub(gsub(doc:selectFirst(".desc-text"):text(), "<br>", "\n"), "<p>", ""), "</p>", "\n"), 1, -2)
+	local novelChapterCount = match(doc:selectFirst(".chapter-title"):attr("title"), "%d+") or "?"
 	local novelStatusString = doc:selectFirst(".text-primary"):text()
 	local novelStatus = STATUS_PICKER[novelStatusString]
 	local novelGenres = {}
@@ -267,6 +205,13 @@ local function parseNovel(novelURL, loadChapters)
 	local novelFavoriteCount = tonumber(doc:selectFirst(".small > em > strong:last-child > span"):text())
 	local novelRating = doc:selectFirst(".small > em > strong > span"):text()
 
+	local finalNovelTitle
+	if novelStatusString == "Ongoing" then
+		finalNovelTitle = "(" .. novelChapterCount .. ") " .. novelTitle
+	else
+		finalNovelTitle = "[" .. novelChapterCount .. "] " .. novelTitle
+	end
+
 	local finalNovelDescription = "Rating: "
 		.. novelRating
 		.. "/10 from "
@@ -275,6 +220,7 @@ local function parseNovel(novelURL, loadChapters)
 		.. novelDescription
 
 	local novelData = {
+		title = finalNovelTitle,
 		imageURL = novelImage,
 		description = finalNovelDescription,
 		status = novelStatus,
@@ -283,7 +229,6 @@ local function parseNovel(novelURL, loadChapters)
 		authors = novelAuthors,
 	}
 
-	local novelChapterCount = "?"
 	if loadChapters then
 		local listingDoc = GETDocument("https://novelbin.com/ajax/chapter-archive?novelId=" .. sub(novelURL, 4))
 		local chapterDocList = listingDoc:select(".list-chapter > li > a")
@@ -302,18 +247,8 @@ local function parseNovel(novelURL, loadChapters)
 			})
 		end
 
-		novelChapterCount = #chapterArray
 		novelData.chapters = chapterArray
 	end
-
-	local finalNovelTitle
-	if novelStatusString == "Ongoing" then
-		finalNovelTitle = "(" .. novelChapterCount .. ") " .. novelTitle
-	else
-		finalNovelTitle = "[" .. novelChapterCount .. "] " .. novelTitle
-	end
-
-	novelData.title = finalNovelTitle
 
 	return NovelInfo(novelData)
 end
@@ -336,84 +271,81 @@ local function getPassage(chapterURL)
 end
 
 local filterModel = {
+	DropdownFilter(LISTING_SELECT, "Listing", LISTING_LIST),
 	DropdownFilter(GENRE_SELECT, "Genre", GENRE_LIST),
-	DropdownFilter(STATUS_SELECT, "Status", STATUS_LIST),
-	DropdownFilter(SEARCH_MODE_SELECT, "Search Mode", SEARCH_MODE_LIST),
 }
 
+local function generatePlaceholder(buffer, title)
+	local bufferSize = #buffer
+	buffer[bufferSize + 1] = Novel({
+		title = "---",
+	})
+	buffer[bufferSize + 2] = Novel({
+		title = title,
+	})
+	buffer[bufferSize + 3] = Novel({
+		title = "---",
+	})
+end
+
 local listings = {
-	Listing("Latest Novels", true, function(filters)
+	Listing("Only", true, function(filters)
+		local listingIndex = tonumber(filters[LISTING_SELECT]) or 0
 		local genreIndex = tonumber(filters[GENRE_SELECT]) or 0
-		local statusIndex = tonumber(filters[STATUS_SELECT]) or 0
 		local currentPage = tonumber(filters[PAGE]) or 1
 
 		if genreIndex == 0 then
-			if statusIndex ~= nil and statusIndex ~= 0 then
-				return parseBrowse("https://novelbin.com/sort/latest/completed?page=" .. currentPage, false)
+			if listingIndex == 0 then
+				return parseBrowse("https://freewebnovel.com/sort/latest-novel/" .. currentPage)
+			elseif listingIndex == 1 then
+				return parseBrowse("https://freewebnovel.com/sort/latest-release/" .. currentPage)
+			elseif listingIndex == 2 then
+				local buffer = {}
+				local bufferSize = 0
+
+				local allVisit = parseBrowse("https://freewebnovel.com/sort/most-popular/")
+				local dailyVisit = parseBrowse("https://freewebnovel.com/sort/most-popular/dayvisit")
+				local weeklyVisit = parseBrowse("https://freewebnovel.com/sort/most-popular/weekvisit")
+				local monthlyVisit = parseBrowse("https://freewebnovel.com/sort/most-popular/monthvisit")
+
+				generatePlaceholder(buffer, "Most Visit")
+				bufferSize = #buffer
+				for i = 1, #allVisit do
+					buffer[bufferSize + i] = allVisit[i]
+				end
+				generatePlaceholder(buffer, "Daily Visit")
+				bufferSize = #buffer
+				for i = 1, #dailyVisit do
+					buffer[bufferSize + i] = dailyVisit[i]
+				end
+				generatePlaceholder(buffer, "Weekly Visit")
+				bufferSize = #buffer
+				for i = 1, #weeklyVisit do
+					buffer[bufferSize + i] = weeklyVisit[i]
+				end
+				generatePlaceholder(buffer, "Monthly Visit")
+				bufferSize = #buffer
+				for i = 1, #monthlyVisit do
+					buffer[bufferSize + i] = monthlyVisit[i]
+				end
+
+				return buffer
 			else
-				return parseBrowse("https://novelbin.com/sort/latest?page=" .. currentPage, false)
+				return parseBrowse("https://freewebnovel.com/sort/completed-novel/" .. currentPage)
 			end
 		end
 
-		return parseBrowse(
-			"https://novelbin.com/genre/"
-				.. GENRE_URL_LIST[genreIndex + 1]
-				.. (statusIndex == 1 and "/completed?page=" or "?page=")
-				.. currentPage,
-			false
-		)
-	end),
-	Listing("Trending Novels", true, function(filters)
-		local genreIndex = tonumber(filters[GENRE_SELECT]) or 0
-		local statusIndex = tonumber(filters[STATUS_SELECT]) or 0
-		local currentPage = tonumber(filters[PAGE]) or 1
-
-		if genreIndex == 0 then
-			if statusIndex ~= nil and statusIndex ~= 0 then
-				return parseBrowse("https://novelbin.com/sort/top-hot-novel/completed?page=" .. currentPage, false)
-			else
-				return parseBrowse("https://novelbin.com/sort/top-hot-novel?page=" .. currentPage, false)
-			end
-		end
-
-		return parseBrowse(
-			"https://novelbin.com/genre/"
-				.. GENRE_URL_LIST[genreIndex + 1]
-				.. (statusIndex == 1 and "/completed?page=" or "?page=")
-				.. currentPage,
-			false
-		)
-	end),
-	Listing("Popular Novels", true, function(filters)
-		local genreIndex = tonumber(filters[GENRE_SELECT]) or 0
-		local statusIndex = tonumber(filters[STATUS_SELECT]) or 0
-		local currentPage = tonumber(filters[PAGE]) or 1
-
-		if genreIndex == 0 then
-			if statusIndex ~= nil and statusIndex ~= 0 then
-				return parseBrowse("https://novelbin.com/sort/top-view-novel/completed?page=" .. currentPage, false)
-			else
-				return parseBrowse("https://novelbin.com/sort/top-view-novel?page=" .. currentPage, false)
-			end
-		end
-
-		return parseBrowse(
-			"https://novelbin.com/genre/"
-				.. GENRE_URL_LIST[genreIndex + 1]
-				.. (statusIndex == 1 and "/completed?page=" or "?page=")
-				.. currentPage,
-			false
-		)
+		return parseBrowse("https://freewebnovel.com/genre/" .. GENRE_SELECT[genreIndex + 1] .. "/" .. currentPage)
 	end),
 }
 
 local finalTable = {
-	id = 778888888,
-	name = "NovelBin",
+	id = 777888888,
+	name = "FreeWebNovel",
 	baseURL = BASE_URL,
-	imageURL = "https://sylixe.github.io/secret/icons/novelbin.png",
+	imageURL = "https://sylixe.github.io/secret/icons/freewebnovel.png",
 
-	hasSearch = true,
+	hasSearch = false,
 	hasCloudFlare = true,
 	isSearchIncrementing = true,
 

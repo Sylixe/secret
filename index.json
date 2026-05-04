@@ -3,13 +3,24 @@
 		{
 			"id": -1803679568,
 			"name": "Sylixe",
-			"desc": "Worked on NovelBin, WuxiaBox",
+			"desc": "Worked on FreeWebNovel, NovelBin, WuxiaBox",
 			"imageURL": "",
 			"website": ""
 		}
 	],
 	"libraries": [],
 	"scripts": [
+		{
+			"id": 777888888,
+			"name": "FreeWebNovel",
+			"fileName": "freewebnovel",
+			"imageURL": "https://sylixe.github.io/secret/icons/freewebnovel.png",
+			"lang": "en",
+			"ver": "1.0.0",
+			"libVer": "1.0.0",
+			"md5": "1292025404900efd02c28a21558b1fbef7f1f7a8583f25c56b455401e03234a9",
+			"type": "LuaScript"
+		},
 		{
 			"id": 778888888,
 			"name": "NovelBin",
@@ -18,7 +29,7 @@
 			"lang": "en",
 			"ver": "1.0.0",
 			"libVer": "1.0.0",
-			"md5": "7fe00b21510d5deaa5a11fda2d01b1595d7a10613cc1e75a0aa2115ac8868644",
+			"md5": "13fb8d257fde7767dae823e77cfd30d83e75f4135bb7cbb7fd0702411844afbe",
 			"type": "LuaScript"
 		},
 		{
@@ -29,7 +40,7 @@
 			"lang": "en",
 			"ver": "1.0.0",
 			"libVer": "1.0.0",
-			"md5": "aed6c9661572def136e862e093a2d4c376663648e5027029b02c44321de0d33e",
+			"md5": "939ebf24f89d0f92ad544eaf6767d512b9fba7d3598a946e7bb2571cb75242f2",
 			"type": "LuaScript"
 		}
 	],
