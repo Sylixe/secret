@@ -1,8 +1,8 @@
 -- {"id":777888888,"ver":"1.0.0","libVer":"1.0.0","author":"Sylixe"}
 
 local LISTING_LIST = {
-	"Newest",
 	"Latest",
+	"Newest",
 	"Popular",
 	"Completed",
 }
@@ -260,9 +260,9 @@ local listings = {
 
 		if genreIndex == 0 then
 			if listingIndex == 0 then
-				return parseBrowse("https://freewebnovel.com/sort/latest-novel/" .. currentPage)
-			elseif listingIndex == 1 then
 				return parseBrowse("https://freewebnovel.com/sort/latest-release/" .. currentPage)
+			elseif listingIndex == 1 then
+				return parseBrowse("https://freewebnovel.com/sort/latest-novel/" .. currentPage)
 			elseif listingIndex == 2 then
 				local buffer = {}
 				local bufferSize = 0
