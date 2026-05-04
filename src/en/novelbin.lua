@@ -326,7 +326,7 @@ local function getPassage(chapterURL)
 	local title = doc:selectFirst(".chr-text"):text()
 	local hasExtraTitle = chap:selectFirst("h4")
 	if hasExtraTitle ~= nil then
-		chap:child(0):remove()
+		hasExtraTitle:remove()
 	end
 
 	chap:select("div"):remove()
@@ -334,12 +334,6 @@ local function getPassage(chapterURL)
 
 	return pageOfElem(chap, true)
 end
-
-local filterModel = {
-	DropdownFilter(GENRE_SELECT, "Genre", GENRE_LIST),
-	DropdownFilter(STATUS_SELECT, "Status", STATUS_LIST),
-	DropdownFilter(SEARCH_MODE_SELECT, "Search Mode", SEARCH_MODE_LIST),
-}
 
 local listings = {
 	Listing("Latest Novels", true, function(filters)
@@ -405,6 +399,12 @@ local listings = {
 			false
 		)
 	end),
+}
+
+local filterModel = {
+	DropdownFilter(GENRE_SELECT, "Genre", GENRE_LIST),
+	DropdownFilter(STATUS_SELECT, "Status", STATUS_LIST),
+	DropdownFilter(SEARCH_MODE_SELECT, "Search Mode", SEARCH_MODE_LIST),
 }
 
 local finalTable = {

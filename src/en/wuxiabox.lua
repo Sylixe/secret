@@ -290,12 +290,6 @@ local function getPassage(chapterURL)
 	return pageOfElem(chap, true)
 end
 
-local filterModel = {
-	DropdownFilter(GENRE_SELECT, "Genre", GENRE_LIST),
-	DropdownFilter(STATUS_SELECT, "Status", STATUS_LIST),
-	DropdownFilter(SORT_BY_SELECT, "Sort By", SORT_BY_LIST),
-}
-
 local listings = {
 	Listing("Only", true, function(filters)
 		local genreIndex = tonumber(filters[GENRE_SELECT]) or 0
@@ -327,6 +321,12 @@ local listings = {
 			)
 		)
 	end),
+}
+
+local filterModel = {
+	DropdownFilter(GENRE_SELECT, "Genre", GENRE_LIST),
+	DropdownFilter(STATUS_SELECT, "Status", STATUS_LIST),
+	DropdownFilter(SORT_BY_SELECT, "Sort By", SORT_BY_LIST),
 }
 
 local finalTable = {

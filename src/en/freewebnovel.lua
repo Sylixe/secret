@@ -65,30 +65,34 @@ local GENRE_LIST = {
 }
 
 local STATUS_PICKER = {
-	Ongoing = NovelStatus.PUBLISHING,
+	OnGoing = NovelStatus.PUBLISHING,
 	Completed = NovelStatus.COMPLETED,
+}
+
+local SEARCH_MODE_LIST = {
+	"Title",
+	"Author",
 }
 
 local QUERY = 0
 local PAGE = 1
 local LISTING_SELECT = 2
 local GENRE_SELECT = 3
+local SEARCH_MODE_SELECT = 4
 
 local BASE_URL = "https://freewebnovel.com"
-local IMAGE_URL = "https://images.novelbin.com/novel/"
-local TITLE_SEARCH_URL = "https://novelbin.com/search?keyword="
-local AUTHOR_SEARCH_URL = "https://novelbin.com/a/"
-local TAG_SEARCH_URL = "https://novelbin.com/tag/"
 
 local gsub = string.gsub
 local match = string.match
 local sub = string.sub
-local upper = string.upper
 local tonumber = tonumber
 
+local POST = POST
 local pageOfElem = pageOfElem
 
 local GETDocument = GETDocument
+local RequestDocument = RequestDocument
+local FormBodyBuilder = FormBodyBuilder
 
 local Novel = Novel
 local NovelInfo = NovelInfo
@@ -104,7 +108,12 @@ end
 
 -- Browse listings
 local function parseBrowse(novelListURL)
-	local doc = GETDocument(novelListURL)
+	local doc
+	if type(novelListURL) == "string" then
+		doc = GETDocument(novelListURL)
+	else
+		doc = novelListURL
+	end
 
 	local titleAndLinkDocList = doc:select(".tit > a:not(.con)")
 	local novelChapterCountDocList = doc:select(".chapter > .s1")
@@ -122,7 +131,7 @@ local function parseBrowse(novelListURL)
 
 		finalListArray[i + 1] = Novel({
 			title = "(" .. novelChapterCount .. ") " .. titleDoc:attr("title"),
-			imageURL = expandURL(imageDoc:attr("data-src")),
+			imageURL = expandURL(imageDoc:attr("src")),
 			link = titleDoc:attr("href"),
 		})
 	end
@@ -134,26 +143,17 @@ end
 local function search(filters)
 	local searchMode = tonumber(filters[SEARCH_MODE_SELECT]) or 0
 	local query = tostring(filters[QUERY])
-	local page = tonumber(filters[PAGE]) or 1
 
 	if query == "" then
 		return {}
 	end
 
-	local pageURL = searchMode == 0 and "&page=" or "?page="
-	local searchURL
 	if searchMode == 0 then
-		searchURL = TITLE_SEARCH_URL
-	elseif searchMode == 1 then
-		searchURL = TAG_SEARCH_URL
+		local request = POST("https://freewebnovel.com/search", nil, FormBodyBuilder():add("searchkey", query):build())
+		local doc = RequestDocument(request)
+		return parseBrowse(doc)
 	else
-		searchURL = AUTHOR_SEARCH_URL
-	end
-
-	if searchMode == 1 then
-		return parseBrowse(searchURL .. upper(query) .. pageURL .. page, false)
-	else
-		return parseBrowse(searchURL .. query .. pageURL .. page, true)
+		return parseBrowse("https://freewebnovel.com/author/" .. query)
 	end
 end
 
@@ -161,84 +161,42 @@ end
 local function parseNovel(novelURL, loadChapters)
 	local doc = GETDocument(expandURL(novelURL))
 
-	local novelTitle = doc:selectFirst(".title"):text()
-	local novelImage = doc:selectFirst(".lazy"):attr("data-src")
+	local novelTitle = doc:selectFirst(".m-desc > .tit"):text()
+	local novelImage = expandURL(doc:selectFirst(".m-imgtxt > .pic"):attr("src"))
 	local novelDescription =
-		sub(gsub(gsub(gsub(doc:selectFirst(".desc-text"):text(), "<br>", "\n"), "<p>", ""), "</p>", "\n"), 1, -2)
-	local novelChapterCount = match(doc:selectFirst(".chapter-title"):attr("title"), "%d+") or "?"
-	local novelStatusString = doc:selectFirst(".text-primary"):text()
+		sub(gsub(gsub(gsub(doc:selectFirst(".txt > .inner"):text(), "<br>", "\n"), "<p>", ""), "</p>", "\n"), 1, -2)
+	local novelStatusString = doc:selectFirst(".right > .s2 > a"):text()
 	local novelStatus = STATUS_PICKER[novelStatusString]
+
+	local buffer = doc:select(".right > a")
+	local bufferSize = buffer:size()
+
+	local novelAuthors = { buffer:get(0):attr("title") }
 	local novelGenres = {}
-	local novelTags = {}
-	do
-		local tagDocList = doc:select(".tag-container > a")
-		local listSize = tagDocList:size()
-
-		for i = 0, listSize - 1 do
-			novelGenres[i + 1] = tagDocList:get(i):text()
-		end
+	for i = 1, bufferSize - 1 do
+		novelGenres[i] = buffer:get(i):text()
 	end
 
-	local novelDescList = doc:select(".info-meta > li")
-	local descListSize = novelDescList:size()
-
-	local novelAuthors
-	for i = 0, descListSize - 1 do
-		local decsDoc = novelDescList:get(i)
-		local descTitle = decsDoc:selectFirst("h3")
-
-		if descTitle then
-			local descTitleText = descTitle:text()
-			if descTitleText == "Author:" then
-				novelAuthors = { decsDoc:selectFirst("a"):text() }
-			elseif descTitleText == "Genre:" then
-				local genreDocList = decsDoc:select("a")
-				local listSize = genreDocList:size()
-
-				for j = 0, listSize - 1 do
-					novelGenres[j + 1] = genreDocList:get(j):text()
-				end
-			end
-		end
-	end
-
-	local novelFavoriteCount = tonumber(doc:selectFirst(".small > em > strong:last-child > span"):text())
-	local novelRating = doc:selectFirst(".small > em > strong > span"):text()
-
-	local finalNovelTitle
-	if novelStatusString == "Ongoing" then
-		finalNovelTitle = "(" .. novelChapterCount .. ") " .. novelTitle
-	else
-		finalNovelTitle = "[" .. novelChapterCount .. "] " .. novelTitle
-	end
-
-	local finalNovelDescription = "Rating: "
-		.. novelRating
-		.. "/10 from "
-		.. novelFavoriteCount
-		.. " ratings\n\n"
-		.. novelDescription
+	local finalNovelDescription = "Rating: " .. doc:selectFirst(".vote"):text() .. "\n" .. novelDescription
 
 	local novelData = {
-		title = finalNovelTitle,
 		imageURL = novelImage,
 		description = finalNovelDescription,
 		status = novelStatus,
-		tags = novelTags,
 		genres = novelGenres,
 		authors = novelAuthors,
 	}
 
+	local novelChapterCount = "?"
 	if loadChapters then
-		local listingDoc = GETDocument("https://novelbin.com/ajax/chapter-archive?novelId=" .. sub(novelURL, 4))
-		local chapterDocList = listingDoc:select(".list-chapter > li > a")
+		local chapterDocList = doc:select(".m-newest2 > .ul-list5 > li > a")
 		local listSize = chapterDocList:size()
 
 		local chapterArray = {}
 		for i = 0, listSize - 1 do
 			local chapter = chapterDocList:get(i)
-			local chapterLink = shrinkURL(chapter:attr("href"))
-			local chapterTitle = chapter:selectFirst("span"):text()
+			local chapterTitle = chapter:attr("title")
+			local chapterLink = chapter:attr("href")
 
 			chapterArray[i + 1] = NovelChapter({
 				order = i + 1,
@@ -247,8 +205,18 @@ local function parseNovel(novelURL, loadChapters)
 			})
 		end
 
+		novelChapterCount = #chapterArray
 		novelData.chapters = chapterArray
 	end
+
+	local finalNovelTitle
+	if novelStatusString == "OnGoing" then
+		finalNovelTitle = "(" .. novelChapterCount .. ") " .. novelTitle
+	else
+		finalNovelTitle = "[" .. novelChapterCount .. "] " .. novelTitle
+	end
+
+	novelData.title = finalNovelTitle
 
 	return NovelInfo(novelData)
 end
@@ -257,11 +225,11 @@ end
 local function getPassage(chapterURL)
 	local doc = GETDocument(expandURL(chapterURL))
 
-	local chap = doc:selectFirst(".chr-c")
-	local title = doc:selectFirst(".chr-text"):text()
+	local chap = doc:selectFirst("#article")
+	local title = doc:selectFirst(".chapter"):text()
 	local hasExtraTitle = chap:selectFirst("h4")
 	if hasExtraTitle ~= nil then
-		chap:child(0):remove()
+		hasExtraTitle:remove()
 	end
 
 	chap:select("div"):remove()
@@ -269,11 +237,6 @@ local function getPassage(chapterURL)
 
 	return pageOfElem(chap, true)
 end
-
-local filterModel = {
-	DropdownFilter(LISTING_SELECT, "Listing", LISTING_LIST),
-	DropdownFilter(GENRE_SELECT, "Genre", GENRE_LIST),
-}
 
 local function generatePlaceholder(buffer, title)
 	local bufferSize = #buffer
@@ -288,6 +251,7 @@ local function generatePlaceholder(buffer, title)
 	})
 end
 
+-- Listings
 local listings = {
 	Listing("Only", true, function(filters)
 		local listingIndex = tonumber(filters[LISTING_SELECT]) or 0
@@ -339,15 +303,21 @@ local listings = {
 	end),
 }
 
+local filterModel = {
+	DropdownFilter(LISTING_SELECT, "Listing", LISTING_LIST),
+	DropdownFilter(GENRE_SELECT, "Genre", GENRE_LIST),
+	DropdownFilter(SEARCH_MODE_SELECT, "Search Mode", SEARCH_MODE_LIST),
+}
+
 local finalTable = {
 	id = 777888888,
 	name = "FreeWebNovel",
 	baseURL = BASE_URL,
 	imageURL = "https://sylixe.github.io/secret/icons/freewebnovel.png",
 
-	hasSearch = false,
+	hasSearch = true,
 	hasCloudFlare = true,
-	isSearchIncrementing = true,
+	isSearchIncrementing = false,
 
 	chapterType = ChapterType.HTML,
 
