@@ -299,7 +299,7 @@ local listings = {
 			end
 		end
 
-		return parseBrowse("https://freewebnovel.com/genre/" .. GENRE_SELECT[genreIndex + 1] .. "/" .. currentPage)
+		return parseBrowse("https://freewebnovel.com/genre/" .. GENRE_LIST[genreIndex + 1] .. "/" .. currentPage)
 	end),
 }
 
