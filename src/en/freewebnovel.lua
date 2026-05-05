@@ -165,7 +165,7 @@ local function parseNovel(novelURL, loadChapters)
 	local novelImage = expandURL(doc:selectFirst(".m-imgtxt > div > img"):attr("src"))
 	local novelDescription =
 		sub(gsub(gsub(gsub(doc:selectFirst(".txt > .inner"):text(), "<br>", "\n"), "<p>", ""), "</p>", "\n"), 1, -2)
-	local novelStatusString = doc:selectFirst(".right > .s2 > a"):text()
+	local novelStatusString = doc:selectFirst(".txt > .item:last-child > .right > span"):text()
 	local novelStatus = STATUS_PICKER[novelStatusString]
 
 	local buffer = doc:select(".right > a")
