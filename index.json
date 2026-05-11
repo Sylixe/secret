@@ -16,9 +16,9 @@
 			"fileName": "freewebnovel",
 			"imageURL": "https://sylixe.github.io/secret/icons/freewebnovel.png",
 			"lang": "en",
-			"ver": "1.0.0",
+			"ver": "1.0.1",
 			"libVer": "1.0.0",
-			"md5": "ef5c7372ba36d0863e151144251e1d3daba63579df8ced0fe785a977bcfd0d82",
+			"md5": "f3bf4e4ca2292133e50cddd73e527390b4f96d76008430ddb1a85ae3769beb3c",
 			"type": "LuaScript"
 		},
 		{
@@ -27,9 +27,9 @@
 			"fileName": "novelbin",
 			"imageURL": "https://sylixe.github.io/secret/icons/novelbin.png",
 			"lang": "en",
-			"ver": "1.0.0",
+			"ver": "1.0.1",
 			"libVer": "1.0.0",
-			"md5": "b5a6b7623d602455b39cb1dbdfb976108aee3ee3fabb4700f5bce7485b4aaf32",
+			"md5": "14b8f854767db5b29c59656ddb6eaa0b8bc13a89cc2d9c931ece834c774891ea",
 			"type": "LuaScript"
 		},
 		{

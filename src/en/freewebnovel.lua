@@ -1,4 +1,4 @@
--- {"id":777888888,"ver":"1.0.0","libVer":"1.0.0","author":"Sylixe"}
+-- {"id":777888888,"ver":"1.0.1","libVer":"1.0.0","author":"Sylixe"}
 
 local LISTING_LIST = {
 	"Latest",
@@ -116,7 +116,7 @@ local function parseBrowse(novelListURL)
 	end
 
 	local titleAndLinkDocList = doc:select(".tit > a:not(.con)")
-	local novelChapterCountDocList = doc:select(".right > a > span")
+	local novelChapterCountDocList = doc:select(".right > a > .s1")
 	local imageDocList = doc:select(".pic > a > img")
 
 	local listSize = titleAndLinkDocList:size()

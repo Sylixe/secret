@@ -1,4 +1,4 @@
--- {"id":778888888,"ver":"1.0.0","libVer":"1.0.0","author":"Sylixe"}
+-- {"id":778888888,"ver":"1.0.1","libVer":"1.0.0","author":"Sylixe"}
 
 local GENRE_LIST = {
 	"None",
@@ -286,14 +286,14 @@ local function parseNovel(novelURL, loadChapters)
 	local novelChapterCount = "?"
 	if loadChapters then
 		local listingDoc = GETDocument("https://novelbin.com/ajax/chapter-archive?novelId=" .. sub(novelURL, 4))
-		local chapterDocList = listingDoc:select(".list-chapter > li > a")
+		local chapterDocList = listingDoc:select(".panel-body > template > li > a")
 		local listSize = chapterDocList:size()
 
 		local chapterArray = {}
 		for i = 0, listSize - 1 do
 			local chapter = chapterDocList:get(i)
 			local chapterLink = shrinkURL(chapter:attr("href"))
-			local chapterTitle = chapter:selectFirst("span"):text()
+			local chapterTitle = chapter:attr("title")
 
 			chapterArray[i + 1] = NovelChapter({
 				order = i + 1,
